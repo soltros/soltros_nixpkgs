@@ -11,6 +11,7 @@
       overlays.default = final: _prev: {
         chatgpt = final.callPackage ./pkgs/chatgpt.nix { };
         termsmith = final.callPackage ./pkgs/termsmith { };
+        waterfox = final.callPackage ./pkgs/waterfox.nix { };
       };
 
       packages = forAllSystems (system:
@@ -21,7 +22,7 @@
             overlays = [ self.overlays.default ];
           };
         in {
-          inherit (pkgs) chatgpt termsmith;
+          inherit (pkgs) chatgpt termsmith waterfox;
           default = pkgs.termsmith;
         });
 
