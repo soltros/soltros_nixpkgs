@@ -5,24 +5,31 @@ public class TerminalProfile : Object {
     public string name { get; set; }
     public string directory { get; set; }
     public string command { get; set; }
+    public string icon { get; set; }
 
-    public TerminalProfile (string id, string name, string directory, string command) {
+    public TerminalProfile (string id, string name, string directory, string command, string icon) {
         this.id = id;
         this.name = name;
         this.directory = directory;
         this.command = command;
+        this.icon = icon;
     }
 }
 
 public class TermsmithApp : Gtk.Application {
     private const string APP_ID = "io.github.derrik.Termsmith";
     private const string DEFAULT_COMMAND = "exec ${SHELL:-zsh}";
+    private const string DEFAULT_ICON = "utilities-terminal";
 
     private Gtk.ApplicationWindow? window;
     private Gtk.ListBox profile_list;
     private Gtk.Entry name_entry;
     private Gtk.Entry directory_entry;
     private Gtk.Entry command_entry;
+    private Gtk.Button icon_button;
+    private Gtk.Image icon_preview;
+    private Gtk.Label icon_name_label;
+    private string selected_icon = DEFAULT_ICON;
     private Gtk.Button save_button;
     private Gtk.Button launch_button;
     private Gtk.Button shortcut_button;
@@ -149,6 +156,7 @@ public class TermsmithApp : Gtk.Application {
         name_entry = add_field (grid, 0, "Name", "Project Shell");
         directory_entry = add_field (grid, 1, "Working Folder", Environment.get_home_dir ());
         command_entry = add_field (grid, 2, "Startup Command", DEFAULT_COMMAND);
+        add_icon_field (grid, 3);
 
         var hint = new Gtk.Label ("The command runs through your login shell. Leave it blank to open a normal shell.") {
             xalign = 0,
@@ -198,6 +206,130 @@ public class TermsmithApp : Gtk.Application {
         return entry;
     }
 
+    private void add_icon_field (Gtk.Grid grid, int row) {
+        var label = new Gtk.Label ("Icon") {
+            xalign = 1,
+            valign = Gtk.Align.CENTER
+        };
+        icon_preview = new Gtk.Image.from_icon_name (DEFAULT_ICON) {
+            pixel_size = 32
+        };
+        icon_name_label = new Gtk.Label (DEFAULT_ICON) {
+            xalign = 0,
+            hexpand = true,
+            ellipsize = Pango.EllipsizeMode.END
+        };
+        var content = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 9) {
+            margin_top = 4,
+            margin_bottom = 4,
+            margin_start = 6,
+            margin_end = 6
+        };
+        content.append (icon_preview);
+        content.append (icon_name_label);
+        icon_button = new Gtk.Button () {
+            child = content,
+            hexpand = true,
+            tooltip_text = "Browse installed icons"
+        };
+        icon_button.clicked.connect (open_icon_browser);
+        grid.attach (label, 0, row, 1, 1);
+        grid.attach (icon_button, 1, row, 1, 1);
+    }
+
+    private void set_selected_icon (string icon_name) {
+        selected_icon = icon_name.length > 0 ? icon_name : DEFAULT_ICON;
+        icon_preview.set_from_icon_name (selected_icon);
+        icon_name_label.label = selected_icon;
+    }
+
+    private void open_icon_browser () {
+        var dialog = new Gtk.Window () {
+            title = "Choose an Icon",
+            default_width = 680,
+            default_height = 540,
+            modal = true,
+            transient_for = window
+        };
+
+        var header = new Gtk.HeaderBar ();
+        dialog.set_titlebar (header);
+
+        var search = new Gtk.SearchEntry () {
+            placeholder_text = "Search icons…",
+            margin_top = 12,
+            margin_bottom = 12,
+            margin_start = 12,
+            margin_end = 12
+        };
+        var flow = new Gtk.FlowBox () {
+            selection_mode = Gtk.SelectionMode.NONE,
+            homogeneous = true,
+            min_children_per_line = 3,
+            max_children_per_line = 6,
+            column_spacing = 6,
+            row_spacing = 6,
+            margin_bottom = 12,
+            margin_start = 12,
+            margin_end = 12
+        };
+
+        var display = Gdk.Display.get_default ();
+        if (display != null) {
+            var icon_theme = Gtk.IconTheme.get_for_display (display);
+            foreach (var icon_name in icon_theme.get_icon_names ()) {
+                var chosen_icon = icon_name;
+                var image = new Gtk.Image.from_icon_name (chosen_icon) {
+                    pixel_size = 48
+                };
+                var name = new Gtk.Label (chosen_icon) {
+                    ellipsize = Pango.EllipsizeMode.END,
+                    max_width_chars = 13,
+                    xalign = 0.5f
+                };
+                var box = new Gtk.Box (Gtk.Orientation.VERTICAL, 6) {
+                    margin_top = 8,
+                    margin_bottom = 8,
+                    margin_start = 6,
+                    margin_end = 6
+                };
+                box.append (image);
+                box.append (name);
+                var button = new Gtk.Button () {
+                    child = box,
+                    tooltip_text = chosen_icon
+                };
+                button.set_data<string> ("icon-name", chosen_icon);
+                button.clicked.connect (() => {
+                    set_selected_icon (chosen_icon);
+                    dialog.close ();
+                });
+                flow.append (button);
+            }
+        }
+
+        flow.set_filter_func ((child) => {
+            var button = child.get_child () as Gtk.Button;
+            if (button == null) return false;
+            var icon_name = button.get_data<string> ("icon-name");
+            var query = search.text.strip ().down ();
+            return query.length == 0 || icon_name.down ().contains (query);
+        });
+        search.search_changed.connect (() => flow.invalidate_filter ());
+
+        var scroll = new Gtk.ScrolledWindow () {
+            child = flow,
+            vexpand = true,
+            hscrollbar_policy = Gtk.PolicyType.NEVER
+        };
+        var content = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
+        content.append (search);
+        content.append (scroll);
+        dialog.child = content;
+        dialog.present ();
+        search.grab_focus ();
+    }
+
     private string config_path () {
         return Path.build_filename (Environment.get_user_config_dir (), "termsmith", "profiles.ini");
     }
@@ -212,7 +344,8 @@ public class TermsmithApp : Gtk.Application {
                     group,
                     key_file.get_string (group, "name"),
                     key_file.get_string (group, "directory"),
-                    key_file.get_string (group, "command")
+                    key_file.get_string (group, "command"),
+                    key_file.has_key (group, "icon") ? key_file.get_string (group, "icon") : DEFAULT_ICON
                 ));
             }
         } catch (Error error) {
@@ -226,6 +359,7 @@ public class TermsmithApp : Gtk.Application {
             key_file.set_string (profile.id, "name", profile.name);
             key_file.set_string (profile.id, "directory", profile.directory);
             key_file.set_string (profile.id, "command", profile.command);
+            key_file.set_string (profile.id, "icon", profile.icon);
         }
 
         var directory = Path.get_dirname (config_path ());
@@ -244,21 +378,30 @@ public class TermsmithApp : Gtk.Application {
         foreach (var profile in profiles) {
             var row = new Gtk.ListBoxRow ();
             row.set_data<string> ("profile-id", profile.id);
+            var icon = new Gtk.Image.from_icon_name (profile.icon) {
+                pixel_size = 32
+            };
             var label = new Gtk.Label (profile.name) {
                 xalign = 0,
+                hexpand = true,
+                ellipsize = Pango.EllipsizeMode.END
+            };
+            var content = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 10) {
                 margin_top = 10,
                 margin_bottom = 10,
                 margin_start = 12,
                 margin_end = 12
             };
-            row.child = label;
+            content.append (icon);
+            content.append (label);
+            row.child = content;
             profile_list.append (row);
         }
     }
 
     private void new_profile () {
         var id = Uuid.string_random ();
-        var profile = new TerminalProfile (id, "New Profile", Environment.get_home_dir (), "");
+        var profile = new TerminalProfile (id, "New Profile", Environment.get_home_dir (), "", DEFAULT_ICON);
         profiles.add (profile);
         save_profiles ();
         refresh_profile_list ();
@@ -276,6 +419,7 @@ public class TermsmithApp : Gtk.Application {
                 name_entry.text = profile.name;
                 directory_entry.text = profile.directory;
                 command_entry.text = profile.command;
+                set_selected_icon (profile.icon);
                 set_editor_sensitive (true);
                 return;
             }
@@ -299,6 +443,7 @@ public class TermsmithApp : Gtk.Application {
         selected_profile.name = name_entry.text.strip ().length > 0 ? name_entry.text.strip () : "Unnamed Profile";
         selected_profile.directory = directory_entry.text.strip ().length > 0 ? directory_entry.text.strip () : Environment.get_home_dir ();
         selected_profile.command = command_entry.text;
+        selected_profile.icon = selected_icon;
         save_profiles ();
         var id = selected_profile.id;
         refresh_profile_list ();
@@ -341,12 +486,11 @@ public class TermsmithApp : Gtk.Application {
         var applications = Path.build_filename (Environment.get_user_data_dir (), "applications");
         var filename = "termsmith-" + selected_profile.id + ".desktop";
         var path = Path.build_filename (applications, filename);
-        var executable = Environment.get_prgname () ?? "termsmith";
         var desktop = "[Desktop Entry]\n" +
             "Name=" + desktop_escape (selected_profile.name) + "\n" +
             "Comment=Launch " + desktop_escape (selected_profile.name) + " terminal profile\n" +
-            "Exec=" + Shell.quote (executable) + " --launch " + selected_profile.id + "\n" +
-            "Icon=io.github.derrik.Termsmith\n" +
+            "Exec=termsmith --launch " + selected_profile.id + "\n" +
+            "Icon=" + desktop_escape (selected_profile.icon) + "\n" +
             "Terminal=false\nType=Application\nCategories=System;TerminalEmulator;\n";
         try {
             DirUtils.create_with_parents (applications, 0755);
@@ -370,6 +514,7 @@ public class TermsmithApp : Gtk.Application {
         name_entry.text = "";
         directory_entry.text = "";
         command_entry.text = "";
+        set_selected_icon (DEFAULT_ICON);
         set_editor_sensitive (false);
     }
 
@@ -377,6 +522,7 @@ public class TermsmithApp : Gtk.Application {
         name_entry.sensitive = sensitive;
         directory_entry.sensitive = sensitive;
         command_entry.sensitive = sensitive;
+        icon_button.sensitive = sensitive;
         save_button.sensitive = sensitive;
         launch_button.sensitive = sensitive;
         shortcut_button.sensitive = sensitive;
