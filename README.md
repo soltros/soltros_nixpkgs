@@ -4,6 +4,8 @@ Personal Nix packages with direct flake outputs and a reusable overlay.
 
 ## Packages
 
+- `addwater` — Native installer and configuration app for the Firefox GNOME Theme
+
 - `chatgpt` — ChatGPT desktop app for Linux
 - `pantheon-studio` — Native Pantheon launcher folders, panel customization, icon themes, and application editing
 - `termsmith` — Pantheon-native launcher for reusable Alacritty profiles
@@ -12,6 +14,7 @@ Personal Nix packages with direct flake outputs and a reusable overlay.
 ## Run a package
 
 ```sh
+nix run github:soltros/soltros_nixpkgs#addwater
 nix run github:soltros/soltros_nixpkgs#pantheon-studio
 nix run github:soltros/soltros_nixpkgs#termsmith
 nix run github:soltros/soltros_nixpkgs#chatgpt
@@ -40,6 +43,7 @@ Add the overlay in a NixOS module:
   nixpkgs.overlays = [ inputs.soltros-nixpkgs.overlays.default ];
 
   environment.systemPackages = with pkgs; [
+    addwater
     chatgpt
     termsmith
     pantheon-studio
@@ -66,6 +70,7 @@ nixpkgs.config.allowUnfree = true;
 ## Development
 
 ```sh
+nix build .#addwater
 nix build .#pantheon-studio
 nix build .#termsmith
 nix build .#chatgpt

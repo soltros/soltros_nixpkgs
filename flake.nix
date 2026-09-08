@@ -11,6 +11,7 @@
       nixosModules.pantheon-studio = import ./modules/pantheon-studio.nix;
 
       overlays.default = final: _prev: {
+        addwater = final.callPackage ./pkgs/addwater { };
         chatgpt = final.callPackage ./pkgs/chatgpt.nix { };
         pantheon-studio-launcher = final.callPackage ./pkgs/pantheon-studio/launcher { };
         pantheon-studio-panel = final.callPackage ./pkgs/pantheon-studio/panel { };
@@ -27,7 +28,7 @@
             overlays = [ self.overlays.default ];
           };
         in {
-          inherit (pkgs) chatgpt pantheon-studio pantheon-studio-launcher pantheon-studio-panel termsmith waterfox;
+          inherit (pkgs) addwater chatgpt pantheon-studio pantheon-studio-launcher pantheon-studio-panel termsmith waterfox;
           default = pkgs.termsmith;
         });
 
@@ -42,6 +43,7 @@
           };
           panel = desktop.pkgs.pantheon.wingpanel-with-indicators;
         in {
+          addwater = self.packages.${system}.addwater;
           pantheon-studio = self.packages.${system}.pantheon-studio;
           launcher = self.packages.${system}.pantheon-studio-launcher;
           panel = self.packages.${system}.pantheon-studio-panel;
