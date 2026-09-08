@@ -5,12 +5,14 @@ Personal Nix packages with direct flake outputs and a reusable overlay.
 ## Packages
 
 - `chatgpt` — ChatGPT desktop app for Linux
+- `pantheon-studio` — Native Pantheon application name, icon, and visibility editor
 - `termsmith` — Pantheon-native launcher for reusable Alacritty profiles
 - `waterfox` — Official Waterfox browser binaries for x86_64 and ARM64 Linux
 
 ## Run a package
 
 ```sh
+nix run github:soltros/soltros_nixpkgs#pantheon-studio
 nix run github:soltros/soltros_nixpkgs#termsmith
 nix run github:soltros/soltros_nixpkgs#chatgpt
 nix run github:soltros/soltros_nixpkgs#waterfox
@@ -40,6 +42,7 @@ Add the overlay in a NixOS module:
   environment.systemPackages = with pkgs; [
     chatgpt
     termsmith
+    pantheon-studio
     waterfox
     alacritty
   ];
@@ -63,6 +66,7 @@ nixpkgs.config.allowUnfree = true;
 ## Development
 
 ```sh
+nix build .#pantheon-studio
 nix build .#termsmith
 nix build .#chatgpt
 nix build .#waterfox

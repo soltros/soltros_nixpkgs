@@ -10,6 +10,7 @@
     in {
       overlays.default = final: _prev: {
         chatgpt = final.callPackage ./pkgs/chatgpt.nix { };
+        pantheon-studio = final.callPackage ./pkgs/pantheon-studio { };
         termsmith = final.callPackage ./pkgs/termsmith { };
         waterfox = final.callPackage ./pkgs/waterfox.nix { };
       };
@@ -22,7 +23,7 @@
             overlays = [ self.overlays.default ];
           };
         in {
-          inherit (pkgs) chatgpt termsmith waterfox;
+          inherit (pkgs) chatgpt pantheon-studio termsmith waterfox;
           default = pkgs.termsmith;
         });
 
