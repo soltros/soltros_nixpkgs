@@ -23,7 +23,12 @@ public class Studio : Gtk.Application {
         window = new Gtk.ApplicationWindow (this) { title = "Pantheon Studio", default_width = 850, default_height = 580 };
         window.set_titlebar (new Gtk.HeaderBar ());
         var pane = new Gtk.Paned (Gtk.Orientation.HORIZONTAL) { position = 300 };
-        window.child = pane;
+        var pages = new Gtk.Stack ();
+        var switcher = new Gtk.StackSwitcher () { stack = pages };
+        ((Gtk.HeaderBar) window.get_titlebar ()).set_title_widget (switcher);
+        pages.add_titled (pane, "applications", "Applications");
+        pages.add_titled (new Customize (), "customize", "Desktop & Launcher");
+        window.child = pages;
         var sidebar = new Gtk.Box (Gtk.Orientation.VERTICAL, 8);
         var search = new Gtk.SearchEntry () { placeholder_text = "Search applications", margin_start = 12, margin_end = 12, margin_top = 12 };
         sidebar.append (search);

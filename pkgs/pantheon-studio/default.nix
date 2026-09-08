@@ -9,11 +9,12 @@
 , pantheon
 , glib
 , libgee
+, xvfb-run
 }:
 
 stdenv.mkDerivation {
   pname = "pantheon-studio";
-  version = "0.1.0";
+  version = "0.2.0";
 
   src = ./.;
 
@@ -22,6 +23,7 @@ stdenv.mkDerivation {
     ninja
     pkg-config
     vala
+    xvfb-run
     wrapGAppsHook4
     glib
   ];
@@ -30,12 +32,14 @@ stdenv.mkDerivation {
     gtk4
     pantheon.granite7
     libgee
+    pantheon.wingpanel
+    pantheon.elementary-gsettings-schemas
   ];
 
   doCheck = true;
 
   meta = {
-    description = "Customize Pantheon application names, icons, and visibility";
+    description = "Customize Pantheon launcher folders, icons, panel appearance, and desktop settings";
     license = lib.licenses.gpl3Plus;
     mainProgram = "pantheon-studio";
     platforms = lib.platforms.linux;

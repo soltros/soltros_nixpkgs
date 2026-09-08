@@ -5,7 +5,7 @@ Personal Nix packages with direct flake outputs and a reusable overlay.
 ## Packages
 
 - `chatgpt` — ChatGPT desktop app for Linux
-- `pantheon-studio` — Native Pantheon application name, icon, and visibility editor
+- `pantheon-studio` — Native Pantheon launcher folders, panel customization, icon themes, and application editing
 - `termsmith` — Pantheon-native launcher for reusable Alacritty profiles
 - `waterfox` — Official Waterfox browser binaries for x86_64 and ARM64 Linux
 
@@ -73,3 +73,16 @@ nix build .#waterfox
 nix flake check
 nix fmt
 ```
+
+## Pantheon Studio desktop integration
+
+For launcher folders, panel customization, and the fix that makes Wingpanel follow
+your desktop icon theme, enable the companion module in your NixOS configuration:
+
+```nix
+imports = [ inputs.soltros-nixpkgs.nixosModules.pantheon-studio ];
+programs.pantheon-studio.enable = true;
+```
+
+Update the input, rebuild NixOS, and log out and back in. See
+[the Studio guide](pkgs/pantheon-studio/README.md) for features and compatibility.
