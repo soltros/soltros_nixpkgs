@@ -26,11 +26,12 @@ assert FirefoxPack.BASE.path == Path(os.environ["XDG_CONFIG_HOME"]) / "mozilla/f
 browser = FirefoxPack.BASE.path
 (browser / "fixture.default").mkdir(parents=True)
 (browser / "profiles.ini").write_text(
-    "[Profile0]\nName=Native fixture\nIsRelative=1\nPath=fixture.default\nDefault=1\n"
+    "[Profile0]\nName = Old fixture\nIsRelative = 1\nPath = fixture.default\nName=Native fixture\nIsRelative=1\nPath=fixture.default\nDefault=1\n"
 )
 assert FirefoxPack.BASE in get_valid_packs()
 profiles = find_profiles(FirefoxPack.BASE)
 assert len(profiles) == 1
+assert profiles[0].name == "Native fixture"
 
 # Loading the real window must not download or install a theme during this test.
 import requests

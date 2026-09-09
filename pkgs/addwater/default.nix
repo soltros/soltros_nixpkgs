@@ -49,6 +49,9 @@ stdenv.mkDerivation (finalAttrs: {
     substituteInPlace src/preferences.py \
       --replace-fail '["addwater", "--quick-update"]' \
       '["${placeholder "out"}/bin/addwater", "--quick-update"]'
+    # Allow non-strict INI parsing for profiles.ini to support duplicate options (e.g. Waterfox/Firefox profiles).
+    substituteInPlace src/apps/firefox/firefox_details.py \
+      --replace-fail 'cfg = ConfigParser()' 'cfg = ConfigParser(strict=False)'
   '';
 
   doCheck = true;
