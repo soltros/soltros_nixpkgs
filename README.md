@@ -8,6 +8,7 @@ Personal Nix packages with direct flake outputs and a reusable overlay.
 
 - `chatgpt` — ChatGPT desktop app for Linux
 - `flakebuilder` — Build a single NixOS flake from selectable configuration bits
+- `flakebuilder-gui` — Optional GTK4/Granite Pantheon frontend for Flakebuilder
 - `pantheon-studio` — Native Pantheon launcher folders, panel customization, icon themes, and application editing
 - `termsmith` — Pantheon-native launcher for reusable Alacritty profiles
 - `waterfox` — Official Waterfox browser binaries for x86_64 and ARM64 Linux
@@ -21,6 +22,12 @@ nix run github:soltros/soltros_nixpkgs#termsmith
 nix run github:soltros/soltros_nixpkgs#chatgpt
 nix run github:soltros/soltros_nixpkgs#waterfox
 nix run github:soltros/soltros_nixpkgs#flakebuilder -- --state-version 26.05
+```
+
+Pantheon users can launch the companion frontend with:
+
+```sh
+nix run github:soltros/soltros_nixpkgs#flakebuilder-gui
 ```
 
 Flakebuilder requires `--state-version`, set to the installation's original NixOS release. For an existing system, read it from `/etc/nixos/configuration.nix`:

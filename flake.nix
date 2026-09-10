@@ -11,6 +11,7 @@
       overlays.default = final: _prev: {
         chatgpt = final.callPackage ./pkgs/chatgpt.nix { };
         flakebuilder = final.callPackage ./pkgs/flakebuilder.nix { };
+        flakebuilder-gui = final.callPackage ./pkgs/flakebuilder-gui.nix { };
         termsmith = final.callPackage ./pkgs/termsmith { };
         waterfox = final.callPackage ./pkgs/waterfox.nix { };
       };
@@ -23,7 +24,7 @@
             overlays = [ self.overlays.default ];
           };
         in {
-          inherit (pkgs) chatgpt flakebuilder termsmith waterfox;
+          inherit (pkgs) chatgpt flakebuilder flakebuilder-gui termsmith waterfox;
           default = pkgs.termsmith;
         });
 
