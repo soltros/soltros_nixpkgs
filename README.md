@@ -7,6 +7,7 @@ Personal Nix packages with direct flake outputs and a reusable overlay.
 - `addwater` — Native installer and configuration app for the Firefox GNOME Theme
 
 - `chatgpt` — ChatGPT desktop app for Linux
+- `flakebuilder` — Build a single NixOS flake from selectable configuration bits
 - `pantheon-studio` — Native Pantheon launcher folders, panel customization, icon themes, and application editing
 - `termsmith` — Pantheon-native launcher for reusable Alacritty profiles
 - `waterfox` — Official Waterfox browser binaries for x86_64 and ARM64 Linux
@@ -19,6 +20,7 @@ nix run github:soltros/soltros_nixpkgs#pantheon-studio
 nix run github:soltros/soltros_nixpkgs#termsmith
 nix run github:soltros/soltros_nixpkgs#chatgpt
 nix run github:soltros/soltros_nixpkgs#waterfox
+nix run github:soltros/soltros_nixpkgs#flakebuilder
 ```
 
 ## Add packages to another flake
@@ -75,6 +77,7 @@ nix build .#pantheon-studio
 nix build .#termsmith
 nix build .#chatgpt
 nix build .#waterfox
+nix build .#flakebuilder
 nix flake check
 nix fmt
 ```

@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+- **flakebuilder**: Added a packaged Flakebuilder application, available with `nix run github:soltros/soltros_nixpkgs#flakebuilder`.
+
 ### Fixed
 - **addwater**: Enabled `strict=False` in Python's `ConfigParser` when scanning browser profiles (`src/apps/firefox/firefox_details.py`). This fixes a startup crash (`DuplicateOptionError`) when encountering `profiles.ini` files with duplicate keys (e.g. Waterfox or migrated Firefox profiles).
 - **addwater**: Expanded package smoke test fixture in `smoke.py` to assert correct discovery when `profiles.ini` contains duplicate keys.
