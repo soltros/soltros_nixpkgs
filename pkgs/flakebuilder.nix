@@ -10,8 +10,8 @@ buildGoModule rec {
   src = fetchFromGitHub {
     owner = "soltros";
     repo = "Flakebuilder";
-    rev = "579c7e9";
-    hash = "sha256-juA1FD1+junqobUw1V6R9o9ibB1dj9O3xxbFIGKP4pM=";
+    rev = "d5978cf";
+    hash = "sha256-ORVpCdQ1QakMCbjNeyrrM4+KVwMxd3FrvKaDjKGNGTw=";
   };
 
   vendorHash = "sha256-uwBJAqN4sIepiiJf9lCDumLqfKJEowQO2tOiSWD3Fig=";
