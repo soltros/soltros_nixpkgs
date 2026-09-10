@@ -20,7 +20,20 @@ nix run github:soltros/soltros_nixpkgs#pantheon-studio
 nix run github:soltros/soltros_nixpkgs#termsmith
 nix run github:soltros/soltros_nixpkgs#chatgpt
 nix run github:soltros/soltros_nixpkgs#waterfox
-nix run github:soltros/soltros_nixpkgs#flakebuilder
+nix run github:soltros/soltros_nixpkgs#flakebuilder -- --state-version 26.05
+```
+
+Flakebuilder requires `--state-version`, set to the installation's original NixOS release. For an existing system, read it from `/etc/nixos/configuration.nix`:
+
+```sh
+grep system.stateVersion /etc/nixos/configuration.nix
+```
+
+Additional Flakebuilder options go after the `--` separator, for example:
+
+```sh
+nix run github:soltros/soltros_nixpkgs#flakebuilder -- \
+  --state-version 26.05 --host workstation --user alice
 ```
 
 ## Add packages to another flake
