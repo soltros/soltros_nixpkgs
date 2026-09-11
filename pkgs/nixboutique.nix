@@ -20,8 +20,8 @@ stdenv.mkDerivation {
   src = fetchFromGitHub {
     owner = "soltros";
     repo = "Nixboutique";
-    rev = "c89900e";
-    hash = "sha256:1k4rnwmasjg6irjxbzica2zqnyhjl36xsdxf44napskvcxiajmgv";
+    rev = "42293b2";
+    hash = "sha256:6a06481b62f5098a3f774c534b8985ee60bd4d733e6eac92c42b75483373fe32";
   };
 
   nativeBuildInputs = [
