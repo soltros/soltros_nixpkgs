@@ -10,6 +10,7 @@
 , gtk4
 , json-glib
 , libgee
+, libsoup_3
 , makeWrapper
 }:
 
@@ -20,8 +21,8 @@ stdenv.mkDerivation {
   src = fetchFromGitHub {
     owner = "soltros";
     repo = "Nixboutique";
-    rev = "4f1fe49";
-    hash = "sha256:58b3da587928c0c0d67c343f05dd0737b99640ef0c29c110ee2fccc579d76986";
+    rev = "4e51ca4";
+    hash = "sha256-ElHoM2J66dGcVl737MaULDb9pPGncLJE00qcdquK9Wk=";
   };
 
   nativeBuildInputs = [
@@ -38,6 +39,8 @@ stdenv.mkDerivation {
     gtk4
     json-glib
     libgee
+    libsoup_3
+    libsoup_3.dev
   ];
 
   postInstall = ''
