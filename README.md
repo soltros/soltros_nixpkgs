@@ -9,9 +9,13 @@ Personal Nix packages with direct flake outputs and a reusable overlay.
 - `chatgpt` — ChatGPT desktop app for Linux
 - `flakebuilder` — Build a single NixOS flake from selectable configuration bits
 - `flakebuilder-gui` — Optional GTK4/Granite Pantheon frontend for Flakebuilder
+- `grayjay` — Cross-platform media application for streaming and downloading media
+- `hideout` — Minimal desktop application for GnuPG file encryption and decryption
+- `keyguard` — Password manager for Bitwarden and KeePass vaults
 - `nixboutique` — Modern GTK4 browser and manager for NixOS applications
 - `pantheon-studio` — Native Pantheon launcher folders, panel customization, icon themes, and application editing
 - `termsmith` — Pantheon-native launcher for reusable Alacritty profiles
+- `vacuumtube` — YouTube Leanback desktop application with enhancements
 - `waterfox` — Official Waterfox browser binaries for x86_64 and ARM64 Linux
 
 ## Run a package
@@ -22,6 +26,10 @@ nix run github:soltros/soltros_nixpkgs#pantheon-studio
 nix run github:soltros/soltros_nixpkgs#nixboutique
 nix run github:soltros/soltros_nixpkgs#termsmith
 nix run github:soltros/soltros_nixpkgs#chatgpt
+nix run github:soltros/soltros_nixpkgs#hideout
+nix run github:soltros/soltros_nixpkgs#keyguard
+nix run github:soltros/soltros_nixpkgs#grayjay
+nix run github:soltros/soltros_nixpkgs#vacuumtube
 nix run github:soltros/soltros_nixpkgs#waterfox
 nix run github:soltros/soltros_nixpkgs#flakebuilder -- --state-version 26.05
 ```
@@ -69,9 +77,13 @@ Add the overlay in a NixOS module:
   environment.systemPackages = with pkgs; [
     addwater
     chatgpt
+    grayjay
+    hideout
+    keyguard
     nixboutique
     termsmith
     pantheon-studio
+    vacuumtube
     waterfox
     alacritty
   ];
@@ -100,6 +112,10 @@ nix build .#pantheon-studio
 nix build .#termsmith
 nix build .#nixboutique
 nix build .#chatgpt
+nix build .#grayjay
+nix build .#hideout
+nix build .#keyguard
+nix build .#vacuumtube
 nix build .#waterfox
 nix build .#flakebuilder
 nix flake check

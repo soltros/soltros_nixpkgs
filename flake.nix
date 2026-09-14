@@ -3,31 +3,54 @@
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-  outputs = { self, nixpkgs }:
+  outputs =
+    { self, nixpkgs }:
     let
-      supportedSystems = [ "x86_64-linux" "aarch64-linux" ];
+      supportedSystems = [
+        "x86_64-linux"
+        "aarch64-linux"
+      ];
       forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
-    in {
+    in
+    {
       overlays.default = final: _prev: {
         chatgpt = final.callPackage ./pkgs/chatgpt.nix { };
         flakebuilder = final.callPackage ./pkgs/flakebuilder.nix { };
         flakebuilder-gui = final.callPackage ./pkgs/flakebuilder-gui.nix { };
+        grayjay = _prev.grayjay;
+        hideout = final.callPackage ./pkgs/hideout { };
+        keyguard = _prev.keyguard;
         nixboutique = final.callPackage ./pkgs/nixboutique.nix { };
         termsmith = final.callPackage ./pkgs/termsmith { };
+        vacuumtube = _prev.vacuum-tube;
         waterfox = final.callPackage ./pkgs/waterfox.nix { };
       };
 
-      packages = forAllSystems (system:
+      packages = forAllSystems (
+        system:
         let
           pkgs = import nixpkgs {
             inherit system;
             config.allowUnfree = true;
             overlays = [ self.overlays.default ];
           };
-        in {
-          inherit (pkgs) chatgpt flakebuilder flakebuilder-gui nixboutique termsmith waterfox;
+        in
+        {
+          inherit (pkgs)
+            chatgpt
+            flakebuilder
+            flakebuilder-gui
+            grayjay
+            hideout
+            keyguard
+            nixboutique
+            termsmith
+            vacuumtube
+            waterfox
+            ;
           default = pkgs.termsmith;
-        });
+        }
+      );
 
       formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixfmt-tree);
     };
