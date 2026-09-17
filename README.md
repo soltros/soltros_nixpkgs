@@ -16,6 +16,7 @@ Personal Nix packages with direct flake outputs and a reusable overlay.
 - `pantheon-studio` — Native Pantheon launcher folders, panel customization, icon themes, and application editing
 - `termsmith` — Pantheon-native launcher for reusable Alacritty profiles
 - `vacuumtube` — YouTube Leanback desktop application with enhancements
+- `vpn-manager` — GTK desktop manager for Tailscale and WireGuard ([guide](pkgs/vpn-manager/README.md))
 - `waterfox` — Official Waterfox browser binaries for x86_64 and ARM64 Linux
 
 ## Run a package

@@ -23,6 +23,8 @@
         nixboutique = final.callPackage ./pkgs/nixboutique.nix { };
         termsmith = final.callPackage ./pkgs/termsmith { };
         vacuumtube = _prev.vacuum-tube;
+        vpn-manager = final.callPackage ./pkgs/vpn-manager { };
+        vpn-manager-deb = final.callPackage ./pkgs/vpn-manager/deb.nix { };
         waterfox = final.callPackage ./pkgs/waterfox.nix { };
       };
 
@@ -46,6 +48,8 @@
             nixboutique
             termsmith
             vacuumtube
+            vpn-manager
+            vpn-manager-deb
             waterfox
             ;
           default = pkgs.termsmith;
