@@ -4,7 +4,7 @@ let
 in
 stdenvNoCC.mkDerivation {
   pname = "vpn-manager";
-  version = "0.1.0";
+  version = "0.2.0";
   src = ./.;
   nativeBuildInputs = [ wrapGAppsHook4 gobject-introspection ];
   buildInputs = [ gtk4 libadwaita ];
@@ -16,7 +16,10 @@ stdenvNoCC.mkDerivation {
   installPhase = ''
     runHook preInstall
     mkdir -p $out/lib/vpn-manager $out/bin
-    cp app.py backend.py $out/lib/vpn-manager/
+    cp app.py backend.py session.py helper.py $out/lib/vpn-manager/
+    makeWrapper ${python3}/bin/python $out/lib/vpn-manager/vpn-manager-helper \
+      --add-flags "-I $out/lib/vpn-manager/helper.py" \
+      --set PATH ${lib.makeBinPath [ networkmanager tailscale iproute2 ]}
     makeWrapper ${python}/bin/python $out/bin/vpn-manager \
       --add-flags $out/lib/vpn-manager/app.py \
       --unset LD_LIBRARY_PATH \

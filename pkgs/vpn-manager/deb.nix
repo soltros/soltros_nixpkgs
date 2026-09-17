@@ -1,5 +1,5 @@
 { lib, runCommand, python3, dpkg }:
-runCommand "vpn-manager-deb-0.1.0" {
+runCommand "vpn-manager-deb-0.2.0" {
   nativeBuildInputs = [ python3 dpkg ];
   meta = {
     description = "Debian package for VPN Manager";

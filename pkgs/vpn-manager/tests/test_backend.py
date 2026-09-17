@@ -14,39 +14,75 @@ class SwitchingTests(unittest.TestCase):
             if fail and fail in args:
                 raise VPNError('Denied')
             return ''
-        backend = Backend(run)
+        backend = Backend(run, sleep=lambda _: None, attempts=1)
         iterator = iter(states)
         backend.status = lambda: next(iterator)
         return backend, calls
 
-    def test_permission_denied_uses_nixos_pkexec(self):
-        denied = subprocess.CompletedProcess([], 1, '', 'Access denied')
-        success = subprocess.CompletedProcess([], 0, '', '')
-        with patch('backend.subprocess.run', side_effect=[denied, success]) as run, \
-             patch('backend.os.path.exists', return_value=True), \
-             patch('backend.shutil.which', return_value='/nix/store/example/bin/tailscale'):
-            command(['tailscale', 'down'], privileged=True)
-        self.assertEqual(run.call_args_list[1].args[0],
-                         ['/run/wrappers/bin/pkexec', '/nix/store/example/bin/tailscale', 'down'])
-
-    def test_permission_prompt_cancel_does_not_succeed(self):
-        denied = subprocess.CompletedProcess([], 1, '', 'Access denied')
-        with patch('backend.subprocess.run', return_value=denied):
-            with self.assertRaises(VPNError):
-                command(['tailscale', 'down'], privileged=True)
-
     def test_disconnect_tailscale_before_wireguard(self):
         profile = Profile('wg-uuid', 'Provider')
-        backend, calls = self.backend([State('Running', profiles=[profile]), State('Stopped', profiles=[profile])])
+        backend, calls = self.backend([State('Running', profiles=[profile]), State('Stopped', profiles=[profile]), State('Stopped', profiles=[Profile(profile.uuid, profile.name, 'wg0', True)])])
         backend.switch(profile.uuid)
         self.assertEqual(calls[0], ['tailscale', 'down'])
         self.assertEqual(calls[-1], ['nmcli', '--wait', '30', 'connection', 'up', 'uuid', profile.uuid])
 
     def test_disconnect_wireguard_before_tailscale(self):
-        backend, calls = self.backend([State('Stopped', profiles=[Profile('wg', 'Provider', 'wg0', True)]), State('Stopped')])
+        backend, calls = self.backend([State('Stopped', profiles=[Profile('wg', 'Provider', 'wg0', True)]), State('Stopped'), State('Running')])
         backend.switch('tailscale')
         self.assertIn('down', calls[-2])
         self.assertEqual(calls[-1], ['tailscale', 'up'])
+
+    def test_wireguard_always_explicitly_stops_tailscale(self):
+        profile = Profile('wg', 'Provider')
+        state = State('Stopped', profiles=[profile])
+        backend, calls = self.backend([state, state, state])
+        backend.switch('wg')
+        self.assertEqual(calls[0], ['tailscale', 'down'])
+
+    def test_starting_tailscale_blocks_wireguard(self):
+        profile = Profile('wg', 'Provider')
+        backend, calls = self.backend([State('Running', profiles=[profile]), State('Starting', profiles=[profile])])
+        with self.assertRaises(VPNError):
+            backend.switch('wg')
+        self.assertFalse(any('up' in call for call in calls))
+
+    def test_waits_for_shutdown(self):
+        profile = Profile('wg', 'Provider')
+        backend, calls = self.backend([State('Running', profiles=[profile]),
+            State('Running', profiles=[profile]), State('Stopped', profiles=[profile]),
+            State('Stopped', profiles=[profile])])
+        backend.attempts = 2
+        backend.switch('wg')
+        self.assertEqual(calls[-1][-3:], ['up', 'uuid', 'wg'])
+
+    def test_wireguard_shutdown_failure_blocks_tailscale(self):
+        state = State('Stopped', profiles=[Profile('wg', 'Provider', 'wg0', True)])
+        backend, calls = self.backend([state], fail='down')
+        with self.assertRaises(VPNError):
+            backend.switch('tailscale')
+        self.assertNotIn(['tailscale', 'up'], calls)
+
+    def test_wireguard_still_present_blocks_tailscale(self):
+        state = State('Stopped', profiles=[Profile('wg', 'Provider', 'wg0', True)])
+        backend, calls = self.backend([state, state])
+        with self.assertRaises(VPNError):
+            backend.switch('tailscale')
+        self.assertNotIn(['tailscale', 'up'], calls)
+
+    def test_tailscale_reappears_after_wireguard_activation(self):
+        profile = Profile('wg', 'Provider')
+        backend, calls = self.backend([State('Running', profiles=[profile]),
+            State('Stopped', profiles=[profile]), State('Running', profiles=[Profile('wg', 'Provider', 'wg0', True)])])
+        with self.assertRaises(VPNError):
+            backend.switch('wg')
+        self.assertEqual(calls[-1], ['nmcli', '--wait', '30', 'connection', 'down', 'uuid', 'wg'])
+
+    def test_wireguard_reappears_after_tailscale_activation(self):
+        backend, calls = self.backend([State('Stopped'), State('Stopped'),
+            State('Running', profiles=[Profile('wg', 'Provider', 'wg0', True)])])
+        with self.assertRaises(VPNError):
+            backend.switch('tailscale')
+        self.assertEqual(calls[-1], ['tailscale', 'down'])
 
     def test_failed_disconnect_never_connects(self):
         backend, calls = self.backend([State('Running', profiles=[Profile('wg', 'Provider')])], fail='down')

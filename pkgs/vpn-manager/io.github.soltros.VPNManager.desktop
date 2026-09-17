@@ -8,3 +8,4 @@ Terminal=false
 Categories=Network;Settings;
 Keywords=VPN;WireGuard;Tailscale;
 StartupNotify=true
+StartupWMClass=io.github.soltros.VPNManager

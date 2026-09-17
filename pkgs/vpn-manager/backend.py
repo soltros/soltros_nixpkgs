@@ -2,7 +2,7 @@
 import json
 import os
 import re
-import shutil
+import time
 import subprocess
 from dataclasses import dataclass, field
 
@@ -15,12 +15,6 @@ def command(args, privileged=False):
     env = dict(os.environ, LC_ALL='C')
     try:
         result = subprocess.run(args, capture_output=True, text=True, timeout=60, env=env)
-        if result.returncode and privileged and any(s in result.stderr.lower() for s in
-                ('permission', 'not authorized', 'access denied', 'authentication required')):
-            pkexec = '/run/wrappers/bin/pkexec' if os.path.exists('/run/wrappers/bin/pkexec') else 'pkexec'
-            elevated = [shutil.which(args[0]) or args[0], *args[1:]]
-            result = subprocess.run([pkexec, *elevated], capture_output=True, text=True,
-                                    timeout=120, env=env)
     except (OSError, subprocess.TimeoutExpired) as error:
         raise VPNError(f'{args[0]} could not complete. Check that its service is available.') from error
     if result.returncode:
@@ -69,8 +63,10 @@ class State:
 
 
 class Backend:
-    def __init__(self, run=command):
+    def __init__(self, run=command, sleep=time.sleep, attempts=20):
         self.run = run
+        self.sleep = sleep
+        self.attempts = attempts
 
     def status(self):
         state = State()
@@ -107,16 +103,24 @@ class Backend:
             raise VPNError('Sign in to Tailscale first using its setup, then return here.')
         if target != 'tailscale' and not any(p.uuid == target for p in before.profiles):
             raise VPNError('This profile no longer exists. Refresh the list.')
-        if target != 'tailscale' and before.ts_active:
+        if target != 'tailscale':
             self.run(['tailscale', 'down'], privileged=True)
         for profile in before.profiles:
             if profile.active and profile.uuid != target:
                 self.disconnect(profile.uuid)
-        # Re-read after stopping; never start the destination on uncertain state.
-        current = self.status()
-        if current.errors or current.external or (target != 'tailscale' and current.ts_active) or any(
-                p.active and p.uuid != target for p in current.profiles):
-            raise VPNError('The previous connection is still active or could not be verified. Nothing else was started.')
+        # Wait for asynchronous shutdown, checking all relevant services each time.
+        current = None
+        for _ in range(self.attempts):
+            current = self.status()
+            if current.errors or current.external:
+                raise VPNError('The previous connection could not be verified. Nothing else was started.')
+            stopped = (target == 'tailscale' or current.tailscale == 'Stopped') and not any(
+                p.active and p.uuid != target for p in current.profiles)
+            if stopped:
+                break
+            self.sleep(0.25)
+        else:
+            raise VPNError('The previous connection is still active. Nothing else was started.')
         if target == 'tailscale':
             if current.tailscale in ('NeedsLogin', 'NeedsMachineAuth'):
                 raise VPNError('Sign in to Tailscale first using its setup, then return here.')
@@ -124,6 +128,16 @@ class Backend:
         else:
             self.run(['nmcli', 'connection', 'modify', 'uuid', target, 'connection.autoconnect', 'no'], privileged=True)
             self.run(['nmcli', '--wait', '30', 'connection', 'up', 'uuid', target], privileged=True)
+
+        # A competing tool may reconnect the other VPN during activation. Stop the
+        # newly requested connection if exclusivity cannot be confirmed afterward.
+        after = self.status()
+        conflict = after.errors or after.external or (
+            target != 'tailscale' and after.tailscale != 'Stopped') or any(
+                p.active and p.uuid != target for p in after.profiles)
+        if conflict:
+            self.disconnect(target)
+            raise VPNError('Another connection appeared during the switch. The new connection was stopped.')
 
     def disconnect(self, target):
         if target == 'tailscale':

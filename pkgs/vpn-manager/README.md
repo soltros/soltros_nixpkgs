@@ -22,17 +22,19 @@ security.polkit.enable = true;
 users.users.derrik.extraGroups = [ "networkmanager" ];
 ```
 
-Use your actual username. A desktop polkit authentication agent is needed for
-operations requiring administrator permission. For convenient Tailscale control,
-run `sudo tailscale set --operator="$USER"` once after signing in to Tailscale.
-The app retries permission-denied operations through the desktop authentication
-dialog. Tailscale login/approval remains in Tailscale's own setup workflow.
+Use your actual username. A desktop polkit authentication agent is required.
+VPN Manager starts a privileged helper through pkexec at launch. Approve the
+administrator prompt once per app session; cancelling keeps controls locked until
+Refresh retries authentication. The GUI runs as your normal user. The helper exits
+when the app closes, accepts only VPN operations over private pipes, and serializes
+switches across running instances. Tailscale login remains in its own setup workflow.
 
 ## Behavior
 
 - Tailscale and WireGuard can coexist with carefully configured routes. This app
   deliberately enforces one connection at a time for switches made through it.
-- It is not a background enforcement daemon: other apps and system services can
+- Exclusivity is enforced for connections started in VPN Manager, including a
+  shutdown wait and a check after activation. It is not a background enforcement daemon: other apps and system services can
   still activate connections. Overlapping connections are flagged when detected.
 - WireGuard status means the interface/profile is active, not proof of a recent
   handshake or working internet access. Tailscale being on does not imply use of
@@ -65,7 +67,7 @@ Install Tailscale from its [official instructions](https://tailscale.com/docs/in
 first, then install the downloaded package:
 
 ```sh
-sudo apt install ./vpn-manager_0.1.0_all.deb
+sudo apt install ./vpn-manager_0.2.0_all.deb
 ```
 
 NetworkManager and tailscaled need to be running. Use a desktop session with a

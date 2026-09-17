@@ -5,13 +5,15 @@ import gi
 gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
 from gi.repository import Adw, Gio, GLib, Gtk
-from backend import Backend, VPNError
+from backend import VPNError
+from session import Session
 
 
 class Window(Adw.ApplicationWindow):
     def __init__(self, app):
         super().__init__(application=app, title='VPN Manager', default_width=620, default_height=700)
-        self.backend = Backend()
+        self.backend = Session()
+        self.set_icon_name("io.github.soltros.VPNManager")
         self.worker = ThreadPoolExecutor(max_workers=1)
         self.busy = False
         self.state = None
@@ -23,6 +25,7 @@ class Window(Adw.ApplicationWindow):
         header.set_title_widget(Adw.WindowTitle(title='VPN Manager', subtitle='Your connections, in one place'))
         self.refresh_button = Gtk.Button(icon_name='view-refresh-symbolic', tooltip_text='Refresh connections')
         self.refresh_button.connect('clicked', lambda _: self.refresh())
+        header.pack_start(Gtk.Image(icon_name='io.github.soltros.VPNManager', pixel_size=24))
         header.pack_start(self.refresh_button)
         self.import_button = Gtk.Button(label='Import config', css_classes=['suggested-action'])
         self.import_button.connect('clicked', self.choose_file)
@@ -64,13 +67,14 @@ class Window(Adw.ApplicationWindow):
         self.footer = Gtk.Label(label='Status refreshes automatically. Switching briefly interrupts connectivity.',
                                 wrap=True, xalign=0, css_classes=['dim-label', 'caption'])
         self.body.append(self.footer)
-        self.refresh()
+        self.run(self.backend.start)
         GLib.timeout_add_seconds(5, self.tick)
 
     def tick(self):
         if not self.get_visible():
             return GLib.SOURCE_REMOVE
-        self.refresh()
+        if self.backend.authorized:
+            self.refresh()
         return GLib.SOURCE_CONTINUE
 
     def run(self, operation, message=None):
@@ -97,7 +101,7 @@ class Window(Adw.ApplicationWindow):
         self.busy = False
         self.spinner.stop()
         self.body.set_sensitive(True)
-        self.import_button.set_sensitive(True)
+        self.import_button.set_sensitive(self.backend.authorized)
         self.refresh_button.set_sensitive(True)
         self.render(state)
         if error:
@@ -109,11 +113,12 @@ class Window(Adw.ApplicationWindow):
         return GLib.SOURCE_REMOVE
 
     def refresh(self):
-        self.run(lambda: None)
+        self.run(lambda: None) if self.backend.authorized else self.run(self.backend.start)
 
     def render(self, state):
         self.state = state
         active = [p for p in state.profiles if p.active]
+        authorized = self.backend.authorized
         conflict = (state.ts_active and (active or state.external)) or len(active) > 1
         if conflict:
             title, detail = 'Connections overlap', 'Disconnect a connection below to return to one VPN.'
@@ -136,7 +141,7 @@ class Window(Adw.ApplicationWindow):
         self.warning.set_visible(bool(warnings))
         self.ts_row.set_subtitle(state.tailscale + (' · ' + state.address if state.ts_active and state.address else ''))
         self.ts_button.set_label('Disconnect' if state.ts_active else 'Connect')
-        self.ts_button.set_sensitive(state.ts_active or not (state.errors or state.external))
+        self.ts_button.set_sensitive(authorized and (state.ts_active or not (state.errors or state.external)))
         for row in self.rows:
             self.wg_group.remove(row)
         self.rows = []
@@ -147,7 +152,7 @@ class Window(Adw.ApplicationWindow):
             button = Gtk.Button(label='Disconnect' if profile.active else 'Connect', valign=Gtk.Align.CENTER)
             if profile.active:
                 button.add_css_class('destructive-action')
-            button.set_sensitive(profile.active or not (state.errors or state.external))
+            button.set_sensitive(authorized and (profile.active or not (state.errors or state.external)))
             button.connect('clicked', lambda _, key=profile.uuid: self.action(key))
             row.add_suffix(button)
             remove = Gtk.Button(icon_name='user-trash-symbolic', tooltip_text='Remove profile', valign=Gtk.Align.CENTER,
@@ -202,8 +207,15 @@ class App(Adw.Application):
         super().__init__(application_id='io.github.soltros.VPNManager', flags=Gio.ApplicationFlags.DEFAULT_FLAGS)
 
     def do_activate(self):
+        Gtk.Window.set_default_icon_name('io.github.soltros.VPNManager')
         window = self.get_active_window() or Window(self)
+        self.session = window.backend
         window.present()
+
+    def do_shutdown(self):
+        if hasattr(self, "session"):
+            self.session.close()
+        Adw.Application.do_shutdown(self)
 
 
 if __name__ == '__main__':

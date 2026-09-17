@@ -8,7 +8,7 @@ import shutil
 import subprocess
 import tempfile
 
-VERSION = '0.1.0'
+VERSION = '0.2.0'
 SOURCE = Path(__file__).resolve().parent
 
 
@@ -24,13 +24,14 @@ def build(output):
             dest.chmod(mode)
         def copy(name, dest):
             write(dest, (SOURCE / name).read_text())
-        for name in ['app.py', 'backend.py']:
+        for name in ['app.py', 'backend.py', 'session.py', 'helper.py']:
             copy(name, 'usr/share/vpn-manager/' + name)
         copy('io.github.soltros.VPNManager.desktop', 'usr/share/applications/io.github.soltros.VPNManager.desktop')
         copy('io.github.soltros.VPNManager.svg', 'usr/share/icons/hicolor/scalable/apps/io.github.soltros.VPNManager.svg')
         copy('README.md', 'usr/share/doc/vpn-manager/README.md')
         copy('LICENSE', 'usr/share/doc/vpn-manager/copyright')
         write('usr/bin/vpn-manager', '#!/bin/sh\nexec /usr/bin/python3 /usr/share/vpn-manager/app.py "$@"\n', 0o755)
+        write('usr/share/vpn-manager/vpn-manager-helper', '#!/bin/sh\nexport PATH=/usr/sbin:/usr/bin:/sbin:/bin\nexec /usr/bin/python3 -I /usr/share/vpn-manager/helper.py\n', 0o755)
         size = sum(p.stat().st_size for p in root.rglob('*') if p.is_file())
         write('DEBIAN/control', f'''Package: vpn-manager
 Version: {VERSION}
