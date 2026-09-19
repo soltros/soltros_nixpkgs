@@ -105,15 +105,44 @@ class PackageChecker:
 
     def check_chatgpt(self, current_version: str) -> Dict[str, Any]:
         url = "https://persistent.oaistatic.com/codex-app-prod/linux/deb/latest/chatgpt_amd64.deb"
-        headers = fetch_head(url)
-        last_modified = headers.get("Last-Modified", "unknown")
-        etag = headers.get("etag", "unknown")
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0", "Range": "bytes=0-1048576"})
+        latest_version = None
+        try:
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                data = resp.read()
+            import io, tarfile
+            offset = 8
+            while offset < len(data):
+                header = data[offset:offset+60]
+                if len(header) < 60:
+                    break
+                name = header[0:16].decode("ascii", errors="ignore").strip()
+                size = int(header[48:58].decode("ascii", errors="ignore").strip())
+                content = data[offset+60:offset+60+size]
+                offset += 60 + size + (size % 2)
+                if "control.tar" in name:
+                    with tarfile.open(fileobj=io.BytesIO(content)) as tar:
+                        for member in tar.getmembers():
+                            if member.name.endswith("control"):
+                                f = tar.extractfile(member)
+                                for line in f.read().decode("utf-8", errors="ignore").splitlines():
+                                    if line.startswith("Version:"):
+                                        latest_version = line.split(":", 1)[1].strip()
+                                        break
+        except Exception:
+            pass
+
+        if not latest_version:
+            headers = fetch_head(url)
+            last_modified = headers.get("Last-Modified", "unknown")
+            latest_version = f"Latest binary ({last_modified})"
+
+        needs_update = bool(latest_version and latest_version != current_version and not latest_version.startswith("Latest binary"))
         return {
-            "status": "info",
+            "status": "update_available" if needs_update else "up_to_date",
             "current": current_version,
-            "latest": f"Latest binary (modified: {last_modified})",
-            "url": url,
-            "etag": etag,
+            "latest": latest_version,
+            "url": "https://developers.openai.com/codex/app",
         }
 
 

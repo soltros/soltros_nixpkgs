@@ -2,9 +2,14 @@ name: Check Package Updates
 
 on:
   schedule:
-    # Run daily at 06:00 UTC
+    # Run daily at 06:00 UTC (02:00 EDT)
     - cron: '0 6 * * *'
   workflow_dispatch:
+    inputs:
+      force_issue:
+        description: 'Post report as issue even if all packages are up to date (for testing)'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -29,13 +34,17 @@ jobs:
         run: |
           python3 scripts/check-updates.py --output-file update-report.md
 
-      - name: Notify on package updates
-        if: steps.scan.outputs.updates_available == 'true'
+      - name: Post or update issue notification when updates are found
+        if: steps.scan.outputs.updates_available == 'true' || inputs.force_issue == true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           UPDATE_COUNT: ${{ steps.scan.outputs.update_count }}
         run: |
-          ISSUE_TITLE="📦 [Package Updates] ${UPDATE_COUNT} package update(s) available"
+          if [ "${UPDATE_COUNT}" -gt 0 ]; then
+            ISSUE_TITLE="📦 [Package Updates] ${UPDATE_COUNT} package update(s) available"
+          else
+            ISSUE_TITLE="📦 [Package Updates] Status Report (All packages up to date)"
+          fi
           
           # Check if an open issue with package-updates label already exists
           EXISTING_ISSUE=$(gh issue list --label "package-updates" --state open --json number --jq '.[0].number' || echo "")
@@ -53,4 +62,16 @@ jobs:
             gh issue create \
               --title "$ISSUE_TITLE" \
               --body-file update-report.md
+          fi
+
+      - name: Automatically close resolved issue when all packages are up to date
+        if: steps.scan.outputs.updates_available == 'false' && inputs.force_issue != true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          EXISTING_ISSUE=$(gh issue list --label "package-updates" --state open --json number --jq '.[0].number' || echo "")
+          if [ -n "$EXISTING_ISSUE" ] && [ "$EXISTING_ISSUE" != "null" ]; then
+            echo "All packages up to date; closing resolved issue #${EXISTING_ISSUE}..."
+            gh issue comment "$EXISTING_ISSUE" --body "✅ All packages in soltros_nixpkgs are now up to date!"
+            gh issue close "$EXISTING_ISSUE" --reason "completed"
           fi
