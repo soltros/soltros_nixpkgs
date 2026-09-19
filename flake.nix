@@ -58,6 +58,16 @@
         }
       );
 
+      apps = forAllSystems (
+        system: {
+          check-updates = {
+            type = "app";
+            program = "${(nixpkgs.legacyPackages.${system}.writers.writePython3Bin "check-updates" { doCheck = false; } (builtins.readFile ./scripts/check-updates.py))}/bin/check-updates";
+          };
+          default = self.apps.${system}.check-updates;
+        }
+      );
+
       formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixfmt-tree);
     };
 }

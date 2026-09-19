@@ -125,6 +125,18 @@ nix flake check
 nix fmt
 ```
 
+## Check for package updates
+
+Run the scanner locally to check for new upstream releases and commits across all packaged tools:
+
+```sh
+# Run via Flake app
+nix run github:soltros/soltros_nixpkgs#check-updates
+
+# Or run locally from this repository
+./scripts/check-updates.py
+```
+
 ## Pantheon Studio desktop integration
 
 For launcher folders, panel customization, and the fix that makes Wingpanel follow
