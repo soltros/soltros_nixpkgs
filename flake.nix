@@ -21,6 +21,7 @@
         hideout = final.callPackage ./pkgs/hideout { };
         keyguard = _prev.keyguard;
         nixboutique = final.callPackage ./pkgs/nixboutique.nix { };
+        quick-settings-tray = final.callPackage ./pkgs/quick-settings-tray { };
         termsmith = final.callPackage ./pkgs/termsmith { };
         vacuumtube = _prev.vacuum-tube;
         vpn-manager = final.callPackage ./pkgs/vpn-manager { };
@@ -46,6 +47,7 @@
             hideout
             keyguard
             nixboutique
+            quick-settings-tray
             termsmith
             vacuumtube
             vpn-manager
