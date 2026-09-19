@@ -13,7 +13,7 @@ Personal Nix packages with direct flake outputs and a reusable overlay.
 - `hideout` — Minimal desktop application for GnuPG file encryption and decryption
 - `keyguard` — Password manager for Bitwarden and KeePass vaults
 - `nixboutique` — Modern GTK4 browser and manager for NixOS applications
-- `pantheon-studio` — Native Pantheon launcher folders, panel customization, icon themes, and application editing
+- `quick-settings-tray` — AppIndicator and KStatusNotifierItem icons in a contained System Tray section of Quick Settings
 - `termsmith` — Pantheon-native launcher for reusable Alacritty profiles
 - `vacuumtube` — YouTube Leanback desktop application with enhancements
 - `vpn-manager` — GTK desktop manager for Tailscale and WireGuard ([guide](pkgs/vpn-manager/README.md))
@@ -82,9 +82,10 @@ Add the overlay in a NixOS module:
     hideout
     keyguard
     nixboutique
+    quick-settings-tray
     termsmith
-    pantheon-studio
     vacuumtube
+    vpn-manager
     waterfox
     alacritty
   ];
@@ -108,17 +109,18 @@ nixpkgs.config.allowUnfree = true;
 ## Development
 
 ```sh
-nix build .#addwater
-nix build .#pantheon-studio
-nix build .#termsmith
-nix build .#nixboutique
 nix build .#chatgpt
+nix build .#flakebuilder
+nix build .#flakebuilder-gui
 nix build .#grayjay
 nix build .#hideout
 nix build .#keyguard
+nix build .#nixboutique
+nix build .#quick-settings-tray
+nix build .#termsmith
 nix build .#vacuumtube
+nix build .#vpn-manager
 nix build .#waterfox
-nix build .#flakebuilder
 nix flake check
 nix fmt
 ```

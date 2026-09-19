@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Added
+- **quick-settings-tray**: Added package for the Quick Settings Tray GNOME extension (`pkgs/quick-settings-tray/default.nix`).
 - **flakebuilder**: Added a packaged Flakebuilder application, available with `nix run github:soltros/soltros_nixpkgs#flakebuilder`.
 
 ### Fixed
