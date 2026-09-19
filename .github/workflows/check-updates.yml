@@ -1,0 +1,56 @@
+name: Check Package Updates
+
+on:
+  schedule:
+    # Run daily at 06:00 UTC
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check-updates:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Scan packages for updates
+        id: scan
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 scripts/check-updates.py --output-file update-report.md
+
+      - name: Notify on package updates
+        if: steps.scan.outputs.updates_available == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          UPDATE_COUNT: ${{ steps.scan.outputs.update_count }}
+        run: |
+          ISSUE_TITLE="📦 [Package Updates] ${UPDATE_COUNT} package update(s) available"
+          
+          # Check if an open issue with package-updates label already exists
+          EXISTING_ISSUE=$(gh issue list --label "package-updates" --state open --json number --jq '.[0].number' || echo "")
+          
+          if [ -n "$EXISTING_ISSUE" ] && [ "$EXISTING_ISSUE" != "null" ]; then
+            echo "Updating existing issue #${EXISTING_ISSUE}..."
+            gh issue edit "$EXISTING_ISSUE" --title "$ISSUE_TITLE" --body-file update-report.md
+          else
+            echo "Creating new issue..."
+            gh issue create \
+              --title "$ISSUE_TITLE" \
+              --body-file update-report.md \
+              --label "package-updates" \
+              --assignee "${{ github.repository_owner }}" || \
+            gh issue create \
+              --title "$ISSUE_TITLE" \
+              --body-file update-report.md
+          fi

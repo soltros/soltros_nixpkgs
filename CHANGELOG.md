@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Added
+- **workflows**: Added scheduled GitHub Actions workflow (`.github/workflows/check-updates.yml`) and scanner script (`scripts/check-updates.py`) to monitor all packaged tools for upstream version updates and post notifications.
 - **quick-settings-tray**: Added package for the Quick Settings Tray GNOME extension (`pkgs/quick-settings-tray/default.nix`).
 - **flakebuilder**: Added a packaged Flakebuilder application, available with `nix run github:soltros/soltros_nixpkgs#flakebuilder`.
 
