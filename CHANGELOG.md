@@ -11,6 +11,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - **quick-settings-tray**: Added package for the Quick Settings Tray GNOME extension (`pkgs/quick-settings-tray/default.nix`).
 - **flakebuilder**: Added a packaged Flakebuilder application, available with `nix run github:soltros/soltros_nixpkgs#flakebuilder`.
 
+### Changed
+- **chatgpt**: Updated to upstream release `26.915.31945` with verified hashes for x86_64 and aarch64.
+
 ### Fixed
 - **flakebuilder**: Clarified the required `--state-version` argument and `nix run` argument separator in the README.
 - **addwater**: Enabled `strict=False` in Python's `ConfigParser` when scanning browser profiles (`src/apps/firefox/firefox_details.py`). This fixes a startup crash (`DuplicateOptionError`) when encountering `profiles.ini` files with duplicate keys (e.g. Waterfox or migrated Firefox profiles).
