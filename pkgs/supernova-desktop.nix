@@ -13,7 +13,7 @@ flutter.buildFlutterApplication (finalAttrs: {
   src = fetchFromGitHub {
     owner = "soltros";
     repo = "Supernova";
-    rev = "9134c57e71fcf62fe48f0d74c3ccbde28b164044";
+    rev = "16b87577e7944c2457e8ae3de2600ab9bb7518ba";
     hash = lib.fakeHash;
   };
 
