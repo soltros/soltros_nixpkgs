@@ -30,6 +30,13 @@ flutter.buildFlutterApplication (finalAttrs: {
   postInstall = ''
     install -Dm644 packaging/com.soltros.Supernova.desktop       $out/share/applications/com.soltros.Supernova.desktop
     install -Dm644 assets/icon.png       $out/share/icons/hicolor/512x512/apps/com.soltros.Supernova.png
+
+    # Flutter derives the binary name from the Dart project name, so the
+    # generated executable is supernova_desktop. Expose the stable hyphenated
+    # command advertised by meta.mainProgram and used by nix run.
+    if [ -x "$out/bin/supernova_desktop" ] && [ ! -e "$out/bin/supernova-desktop" ]; then
+      ln -s "$out/bin/supernova_desktop" "$out/bin/supernova-desktop"
+    fi
   '';
 
   meta = {
