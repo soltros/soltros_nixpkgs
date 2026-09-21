@@ -14,6 +14,7 @@
     in
     {
       overlays.default = final: _prev: {
+        cabinet-desktop = final.callPackage ./pkgs/cabinet-desktop { };
         chatgpt = final.callPackage ./pkgs/chatgpt.nix { };
         flakebuilder = final.callPackage ./pkgs/flakebuilder.nix { };
         flakebuilder-gui = final.callPackage ./pkgs/flakebuilder-gui.nix { };
@@ -41,6 +42,7 @@
         in
         {
           inherit (pkgs)
+            cabinet-desktop
             chatgpt
             flakebuilder
             flakebuilder-gui
