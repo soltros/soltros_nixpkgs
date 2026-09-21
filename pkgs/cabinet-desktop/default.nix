@@ -17,7 +17,7 @@
 let
   src = builtins.fetchGit {
     url = "https://github.com/soltros/Cabinet-Desktop.git";
-    rev = "38979752827be1bbe5d0788995f41b72677de1c5";
+    rev = "0517d92a252ab1db44b7569bbc38c8687119d109";
   };
 in
 rustPlatform.buildRustPackage {
