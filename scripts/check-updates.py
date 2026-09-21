@@ -250,7 +250,32 @@ def scan_all_packages(token: Optional[str] = None, repo_root: Optional[Path] = N
         info["type"] = "GitHub Commit"
         results.append(info)
 
-    # 8. Waterfox
+
+    # Cabinet Desktop
+    cabinet_nix = root / "pkgs" / "cabinet-desktop" / "default.nix"
+    if cabinet_nix.is_file():
+        rev = parse_rev(read_file(cabinet_nix)) or "main"
+        try:
+            info = checker.check_github_commit("soltros", "Cabinet-Desktop", rev)
+        except Exception as e:
+            info = {"status": "error", "error": str(e), "current": rev, "latest": "?"}
+        info["package"] = "cabinet-desktop"
+        info["type"] = "GitHub Commit"
+        results.append(info)
+
+    # Supernova Desktop
+    supernova_nix = root / "pkgs" / "supernova-desktop.nix"
+    if supernova_nix.is_file():
+        rev = parse_rev(read_file(supernova_nix)) or "main"
+        try:
+            info = checker.check_github_commit("soltros", "Supernova", rev)
+        except Exception as e:
+            info = {"status": "error", "error": str(e), "current": rev, "latest": "?"}
+        info["package"] = "supernova-desktop"
+        info["type"] = "GitHub Commit"
+        results.append(info)
+
+    # Waterfox
     waterfox_nix = root / "pkgs" / "waterfox.nix"
     if waterfox_nix.is_file():
         v = parse_version(read_file(waterfox_nix)) or "unknown"

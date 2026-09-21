@@ -6,6 +6,7 @@ Personal Nix packages with direct flake outputs and a reusable overlay.
 
 - `addwater` — Native installer and configuration app for the Firefox GNOME Theme
 
+- `cabinet-desktop` — Native Rust desktop client for self-hosted Cabinet servers
 - `chatgpt` — ChatGPT desktop app for Linux
 - `flakebuilder` — Build a single NixOS flake from selectable configuration bits
 - `flakebuilder-gui` — Optional GTK4/Granite Pantheon frontend for Flakebuilder
@@ -24,6 +25,7 @@ Personal Nix packages with direct flake outputs and a reusable overlay.
 
 ```sh
 nix run github:soltros/soltros_nixpkgs#addwater
+nix run github:soltros/soltros_nixpkgs#cabinet-desktop
 nix run github:soltros/soltros_nixpkgs#pantheon-studio
 nix run github:soltros/soltros_nixpkgs#nixboutique
 nix run github:soltros/soltros_nixpkgs#termsmith
@@ -78,6 +80,7 @@ Add the overlay in a NixOS module:
 
   environment.systemPackages = with pkgs; [
     addwater
+    cabinet-desktop
     chatgpt
     grayjay
     hideout
@@ -111,6 +114,7 @@ nixpkgs.config.allowUnfree = true;
 ## Development
 
 ```sh
+nix build .#cabinet-desktop
 nix build .#chatgpt
 nix build .#flakebuilder
 nix build .#flakebuilder-gui
@@ -130,7 +134,7 @@ nix fmt
 
 ## Check for package updates
 
-Run the scanner locally to check for new upstream releases and commits across all packaged tools:
+Run the scanner locally to check for new upstream releases and commits across all packaged tools. Commit-pinned packages such as `cabinet-desktop` and `supernova-desktop` are compared with the latest commit on their upstream `main` branches. The scheduled GitHub workflow updates or opens a `package-updates` issue when a pinned package falls behind:
 
 ```sh
 # Run via Flake app
