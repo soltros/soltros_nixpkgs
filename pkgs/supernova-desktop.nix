@@ -13,8 +13,8 @@ flutter.buildFlutterApplication (finalAttrs: {
   src = fetchFromGitHub {
     owner = "soltros";
     repo = "Supernova";
-    rev = "4b5ccb499eda6c9f7448497a20c441b88a39b9eb";
-    hash = "sha256-/fcc0jGMUt3KBd3+EFLZqlTOQMd+CVGYlLr7L8VMhPw=";
+    rev = "0d40b964af8e1a9dbf023ab83888c8d37faaa810";
+    hash = lib.fakeHash;
   };
 
   sourceRoot = "${finalAttrs.src.name}/desktop-app";
@@ -22,6 +22,10 @@ flutter.buildFlutterApplication (finalAttrs: {
 
   nativeBuildInputs = [ pkg-config ];
   buildInputs = [ gtk3 libsecret ];
+
+  preBuild = ''
+    flutter create --platforms=linux --project-name supernova_desktop --org com.soltros .
+  '';
 
   postInstall = ''
     install -Dm644 packaging/com.soltros.Supernova.desktop       $out/share/applications/com.soltros.Supernova.desktop
