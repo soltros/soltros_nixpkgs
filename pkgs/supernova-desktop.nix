@@ -14,7 +14,7 @@ flutter.buildFlutterApplication (finalAttrs: {
     owner = "soltros";
     repo = "Supernova";
     rev = "4b5ccb499eda6c9f7448497a20c441b88a39b9eb";
-    hash = lib.fakeHash;
+    hash = "sha256-/fcc0jGMUt3KBd3+EFLZqlTOQMd+CVGYlLr7L8VMhPw=";
   };
 
   sourceRoot = "${finalAttrs.src.name}/desktop-app";
