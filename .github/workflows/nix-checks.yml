@@ -11,9 +11,15 @@ permissions:
   contents: read
 
 jobs:
-  supernova-desktop:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - supernova-desktop
+          - cabinet-desktop
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@main
-      - run: nix build .#supernova-desktop --print-build-logs
+      - run: nix build .#${{ matrix.package }} --print-build-logs
