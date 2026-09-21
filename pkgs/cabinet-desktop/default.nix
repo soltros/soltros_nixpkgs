@@ -11,6 +11,7 @@
 , libxcursor
 , libxi
 , libxrandr
+, xdotool
 }:
 
 let
@@ -44,6 +45,7 @@ rustPlatform.buildRustPackage {
     libxcursor
     libxi
     libxrandr
+    xdotool
   ];
 
   postInstall = ''
