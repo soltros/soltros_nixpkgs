@@ -14,6 +14,7 @@ Personal Nix packages with direct flake outputs and a reusable overlay.
 - `keyguard` — Password manager for Bitwarden and KeePass vaults
 - `nixboutique` — Modern GTK4 browser and manager for NixOS applications
 - `quick-settings-tray` — AppIndicator and KStatusNotifierItem icons in a contained System Tray section of Quick Settings
+- `supernova-desktop` — Native Flutter desktop client for self-hosted Supernova music servers
 - `termsmith` — Pantheon-native launcher for reusable Alacritty profiles
 - `vacuumtube` — YouTube Leanback desktop application with enhancements
 - `vpn-manager` — GTK desktop manager for Tailscale and WireGuard ([guide](pkgs/vpn-manager/README.md))
@@ -83,6 +84,7 @@ Add the overlay in a NixOS module:
     keyguard
     nixboutique
     quick-settings-tray
+    supernova-desktop
     termsmith
     vacuumtube
     vpn-manager
@@ -117,6 +119,7 @@ nix build .#hideout
 nix build .#keyguard
 nix build .#nixboutique
 nix build .#quick-settings-tray
+nix build .#supernova-desktop
 nix build .#termsmith
 nix build .#vacuumtube
 nix build .#vpn-manager
@@ -149,3 +152,24 @@ programs.pantheon-studio.enable = true;
 
 Update the input, rebuild NixOS, and log out and back in. See
 [the Studio guide](pkgs/pantheon-studio/README.md) for features and compatibility.
+
+
+## Supernova Desktop
+
+`supernova-desktop` is the native Flutter client for Supernova. It connects directly to a self-hosted Supernova instance: enter the instance URL, sign in or register, and the app uses the native Supernova API for library browsing, playback, playlists, favorites, podcasts, radio, and account/server features.
+
+Run it directly:
+
+```sh
+nix run github:soltros/soltros_nixpkgs#supernova-desktop
+```
+
+Or add it to a NixOS configuration through the overlay:
+
+```nix
+environment.systemPackages = with pkgs; [
+  supernova-desktop
+];
+```
+
+The package builds the Flutter client from source and exposes `supernova-desktop` as its main executable.
