@@ -22,6 +22,7 @@
         keyguard = _prev.keyguard;
         nixboutique = final.callPackage ./pkgs/nixboutique.nix { };
         quick-settings-tray = final.callPackage ./pkgs/quick-settings-tray { };
+        supernova-desktop = final.callPackage ./pkgs/supernova-desktop.nix { };
         termsmith = final.callPackage ./pkgs/termsmith { };
         vacuumtube = _prev.vacuum-tube;
         vpn-manager = final.callPackage ./pkgs/vpn-manager { };
@@ -48,6 +49,7 @@
             keyguard
             nixboutique
             quick-settings-tray
+            supernova-desktop
             termsmith
             vacuumtube
             vpn-manager
