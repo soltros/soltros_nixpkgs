@@ -3,6 +3,8 @@
 , fetchFromGitHub
 , gtk3
 , libsecret
+, makeWrapper
+, mpv
 , pkg-config
 }:
 
@@ -20,8 +22,8 @@ flutter.buildFlutterApplication (finalAttrs: {
   sourceRoot = "${finalAttrs.src.name}/desktop-app";
   autoPubspecLock = finalAttrs.src + "/desktop-app/pubspec.lock";
 
-  nativeBuildInputs = [ pkg-config ];
-  buildInputs = [ gtk3 libsecret ];
+  nativeBuildInputs = [ pkg-config makeWrapper ];
+  buildInputs = [ gtk3 libsecret mpv ];
 
   preBuild = ''
     flutter create --platforms=linux --project-name supernova_desktop --org com.soltros .
@@ -31,10 +33,19 @@ flutter.buildFlutterApplication (finalAttrs: {
     install -Dm644 packaging/com.soltros.Supernova.desktop       $out/share/applications/com.soltros.Supernova.desktop
     install -Dm644 assets/icon.png       $out/share/icons/hicolor/512x512/apps/com.soltros.Supernova.png
 
-    # Flutter derives the binary name from the Dart project name, so the
-    # generated executable is supernova_desktop. Expose the stable hyphenated
-    # command advertised by meta.mainProgram and used by nix run.
-    if [ -x "$out/bin/supernova_desktop" ] && [ ! -e "$out/bin/supernova-desktop" ]; then
+  '';
+
+  postFixup = ''
+    # media_kit loads libmpv dynamically at runtime. On NixOS there is no
+    # global /usr/lib fallback, so make libmpv visible to the application.
+    if [ -x "$out/bin/supernova_desktop" ]; then
+      wrapProgram "$out/bin/supernova_desktop" \
+        --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath [ mpv ]}"
+    fi
+
+    # Flutter derives the executable name from the Dart project name. Expose
+    # the stable hyphenated command advertised by meta.mainProgram.
+    if [ ! -e "$out/bin/supernova-desktop" ]; then
       ln -s "$out/bin/supernova_desktop" "$out/bin/supernova-desktop"
     fi
   '';
