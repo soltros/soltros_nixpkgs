@@ -1,51 +1,57 @@
 { lib
-, stdenv
+, flutter
 , fetchFromGitHub
-, electron
+, gtk3
+, libsecret
 , makeWrapper
+, mpv
+, pkg-config
 }:
 
-stdenv.mkDerivation {
+flutter.buildFlutterApplication (finalAttrs: {
   pname = "supernova-desktop";
-  version = "2026.07.17";
+  version = "0-unstable-2026-09-21";
 
   src = fetchFromGitHub {
     owner = "soltros";
     repo = "Supernova";
-    rev = "8c91a9e493bc06550eedce24ee5d3e4358527d36";
-    hash = "sha256-UpEMK9OCfVTWZiJ6wY/HY238cAIuP22pCChViLbZHdE=";
+    rev = "94c12fdc66442b575ff518a3e527fd78ba4db6f6";
+    hash = lib.fakeHash;
   };
 
-  sourceRoot = "source/desktop-app";
+  sourceRoot = "${finalAttrs.src.name}/desktop-app";
+  autoPubspecLock = finalAttrs.src + "/desktop-app/pubspec.lock";
 
-  nativeBuildInputs = [ makeWrapper ];
+  nativeBuildInputs = [ pkg-config makeWrapper ];
+  buildInputs = [ gtk3 libsecret mpv ];
 
-  installPhase = ''
-    runHook preInstall
-    mkdir -p "$out/share/supernova-desktop" "$out/bin"
-    cp main.js preload.js security.js setup.html package.json "$out/share/supernova-desktop/"
-    cp -r build "$out/share/supernova-desktop/"
-    makeWrapper ${electron}/bin/electron "$out/bin/supernova-desktop" --add-flags "$out/share/supernova-desktop"
-    install -Dm644 /dev/stdin "$out/share/applications/com.supernova.desktop.desktop" <<'EOF'
-    [Desktop Entry]
-    Type=Application
-    Name=Supernova
-    Comment=Desktop client for the Supernova music server
-    Exec=supernova-desktop
-    Icon=com.supernova.desktop
-    Terminal=false
-    Categories=Audio;AudioVideo;Network;
-    StartupNotify=true
-    EOF
-    install -Dm644 build/icon.png "$out/share/icons/hicolor/512x512/apps/com.supernova.desktop.png"
-    runHook postInstall
+  preBuild = ''
+    flutter create --platforms=linux --project-name supernova_desktop --org com.soltros .
+  '';
+
+  postInstall = ''
+    install -Dm644 packaging/com.soltros.Supernova.desktop \
+      $out/share/applications/com.soltros.Supernova.desktop
+    install -Dm644 assets/icon.png \
+      $out/share/icons/hicolor/512x512/apps/com.soltros.Supernova.png
+  '';
+
+  postFixup = ''
+    if [ -x "$out/bin/supernova_desktop" ]; then
+      wrapProgram "$out/bin/supernova_desktop" \
+        --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath [ mpv ]}"
+    fi
+
+    if [ ! -e "$out/bin/supernova-desktop" ]; then
+      ln -s "$out/bin/supernova_desktop" "$out/bin/supernova-desktop"
+    fi
   '';
 
   meta = {
-    description = "Official Electron desktop client for the Supernova music server";
+    description = "Native Flutter desktop client for the Supernova music server";
     homepage = "https://github.com/soltros/Supernova";
     license = lib.licenses.gpl3Only;
     mainProgram = "supernova-desktop";
     platforms = lib.platforms.linux;
   };
-}
+})
