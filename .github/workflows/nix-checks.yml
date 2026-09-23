@@ -11,6 +11,18 @@ permissions:
   contents: read
 
 jobs:
+  source:
+    strategy:
+      fail-fast: false
+      matrix:
+        system: [x86_64-linux, aarch64-linux]
+        package: [chatgpt, waterfox]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+      - run: nix build ".#packages.${{ matrix.system }}.${{ matrix.package }}.src" --print-build-logs
+
   build:
     strategy:
       fail-fast: false
@@ -18,6 +30,8 @@ jobs:
         package:
           - supernova-desktop
           - cabinet-desktop
+          - chatgpt
+          - waterfox
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
