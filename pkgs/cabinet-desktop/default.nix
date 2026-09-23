@@ -17,12 +17,12 @@
 let
   src = builtins.fetchGit {
     url = "https://github.com/soltros/Cabinet-Desktop.git";
-    rev = "8f002cf696977985aad390caa64108fd401f688e";
+    rev = "7dfe8b30c9963c0f90e97310d491988767685918";
   };
 in
 rustPlatform.buildRustPackage {
   pname = "cabinet-desktop";
-  version = "0.1.0-dev-20260921";
+  version = "0.1.0-dev-20260922";
 
   inherit src;
 
