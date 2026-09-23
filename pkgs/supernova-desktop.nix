@@ -10,13 +10,13 @@
 
 flutter.buildFlutterApplication (finalAttrs: {
   pname = "supernova-desktop";
-  version = "0-unstable-2026-09-21";
+  version = "0-unstable-2026-09-22";
 
   src = fetchFromGitHub {
     owner = "soltros";
     repo = "Supernova";
-    rev = "0d40b964af8e1a9dbf023ab83888c8d37faaa810";
-    hash = "sha256-N3TbLvPhBuUAXIzulO1WCORHmjDeh6NFXkVRKnwIi38=";
+    rev = "8c91a9e493bc06550eedce24ee5d3e4358527d36";
+    hash = lib.fakeHash;
   };
 
   sourceRoot = "${finalAttrs.src.name}/desktop-app";
