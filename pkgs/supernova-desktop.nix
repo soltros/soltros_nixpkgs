@@ -1,16 +1,13 @@
 { lib
-, flutter
+, buildNpmPackage
 , fetchFromGitHub
-, gtk3
-, libsecret
+, electron_44
 , makeWrapper
-, mpv
-, pkg-config
 }:
 
-flutter.buildFlutterApplication (finalAttrs: {
+buildNpmPackage rec {
   pname = "supernova-desktop";
-  version = "0-unstable-2026-09-22";
+  version = "2026.07.17-unstable-2026-09-22";
 
   src = fetchFromGitHub {
     owner = "soltros";
@@ -19,42 +16,57 @@ flutter.buildFlutterApplication (finalAttrs: {
     hash = "sha256-UpEMK9OCfVTWZiJ6wY/HY238cAIuP22pCChViLbZHdE=";
   };
 
-  sourceRoot = "${finalAttrs.src.name}/desktop-app";
-  autoPubspecLock = finalAttrs.src + "/desktop-app/pubspec.lock";
+  sourceRoot = "${src.name}/desktop-app";
 
-  nativeBuildInputs = [ pkg-config makeWrapper ];
-  buildInputs = [ gtk3 libsecret mpv ];
+  npmDepsHash = lib.fakeHash;
 
-  preBuild = ''
-    flutter create --platforms=linux --project-name supernova_desktop --org com.soltros .
+  env.ELECTRON_SKIP_BINARY_DOWNLOAD = true;
+
+  nativeBuildInputs = [ makeWrapper ];
+
+  buildPhase = ''
+    runHook preBuild
+
+    npx electron-builder --linux --dir \
+      -c.electronDist="${electron_44.dist}" \
+      -c.electronVersion=${electron_44.version}
+
+    runHook postBuild
   '';
 
-  postInstall = ''
-    install -Dm644 packaging/com.soltros.Supernova.desktop       $out/share/applications/com.soltros.Supernova.desktop
-    install -Dm644 assets/icon.png       $out/share/icons/hicolor/512x512/apps/com.soltros.Supernova.png
+  installPhase = ''
+    runHook preInstall
 
-  '';
+    mkdir -p "$out/share/lib/supernova-desktop"
+    cp -r dist/*-unpacked/resources/app.asar* "$out/share/lib/supernova-desktop/"
 
-  postFixup = ''
-    # media_kit loads libmpv dynamically at runtime. On NixOS there is no
-    # global /usr/lib fallback, so make libmpv visible to the application.
-    if [ -x "$out/bin/supernova_desktop" ]; then
-      wrapProgram "$out/bin/supernova_desktop" \
-        --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath [ mpv ]}"
-    fi
+    install -Dm644 build/icon.png \
+      "$out/share/icons/hicolor/512x512/apps/com.supernova.desktop.png"
 
-    # Flutter derives the executable name from the Dart project name. Expose
-    # the stable hyphenated command advertised by meta.mainProgram.
-    if [ ! -e "$out/bin/supernova-desktop" ]; then
-      ln -s "$out/bin/supernova_desktop" "$out/bin/supernova-desktop"
-    fi
+    install -Dm644 /dev/stdin "$out/share/applications/com.supernova.desktop.desktop" <<'EOF'
+    [Desktop Entry]
+    Type=Application
+    Name=Supernova
+    Comment=Official desktop client for the Supernova music server
+    Exec=supernova-desktop
+    Icon=com.supernova.desktop
+    Terminal=false
+    Categories=Audio;AudioVideo;Player;
+    StartupNotify=true
+    EOF
+
+    makeWrapper "${lib.getExe electron_44}" "$out/bin/supernova-desktop" \
+      --add-flags "$out/share/lib/supernova-desktop/app.asar" \
+      --inherit-argv0
+
+    runHook postInstall
   '';
 
   meta = {
-    description = "Native Flutter desktop client for the Supernova music server";
+    description = "Official Electron desktop client for the Supernova music server";
     homepage = "https://github.com/soltros/Supernova";
     license = lib.licenses.gpl3Only;
     mainProgram = "supernova-desktop";
     platforms = lib.platforms.linux;
   };
-})
+}
