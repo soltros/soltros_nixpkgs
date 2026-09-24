@@ -268,7 +268,7 @@ def scan_all_packages(token: Optional[str] = None, repo_root: Optional[Path] = N
     if supernova_nix.is_file():
         rev = parse_rev(read_file(supernova_nix)) or "main"
         try:
-            info = checker.check_github_commit("soltros", "Supernova", rev)
+            info = checker.check_github_commit("soltros", "Supernova", rev, branch="feature/flutter-desktop")
         except Exception as e:
             info = {"status": "error", "error": str(e), "current": rev, "latest": "?"}
         info["package"] = "supernova-desktop"
