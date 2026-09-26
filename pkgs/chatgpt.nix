@@ -37,21 +37,22 @@
 }:
 
 let
+  # Upstream latest URLs are mutable; update the version and both hashes together.
   sources = {
     x86_64-linux = {
       url = "https://persistent.oaistatic.com/codex-app-prod/linux/deb/latest/chatgpt_amd64.deb";
-      sha256 = "sha256-hR7Ci2W94v8dqfN9zfW24gqRXHVo+LLOmTwAQo8BiuU=";
+      sha256 = "sha256-dgoKmNzAWkDL2KNv7B3Xsycz5qHypShThq5/r5pqsDM=";
     };
     aarch64-linux = {
       url = "https://persistent.oaistatic.com/codex-app-prod/linux/deb/latest/chatgpt_arm64.deb";
-      sha256 = lib.fakeHash;
+      sha256 = "sha256-BiDhiK9XvDPNPMAWx+w/z27Qh8GpAoPQV1mMlCiXVkg=";
     };
   };
   srcInfo = sources.${stdenv.hostPlatform.system} or (throw "Unsupported system: ${stdenv.hostPlatform.system}");
 in
 stdenv.mkDerivation rec {
   pname = "chatgpt";
-  version = "26.917.62051";
+  version = "26.924.20706";
 
   src = fetchurl {
     inherit (srcInfo) url sha256;
