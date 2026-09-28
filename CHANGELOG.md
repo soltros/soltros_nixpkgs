@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - **flakebuilder**: Added a packaged Flakebuilder application, available with `nix run github:soltros/soltros_nixpkgs#flakebuilder`.
 
 ### Changed
+- **chatgpt**: Updated to upstream release `26.924.22138` with verified x86_64 and aarch64 download hashes (issue #9).
 - **chatgpt**: Updated to upstream release `26.915.31945` with verified hashes for x86_64 and aarch64.
 
 ### Fixed
