@@ -41,18 +41,18 @@ let
   sources = {
     x86_64-linux = {
       url = "https://persistent.oaistatic.com/codex-app-prod/linux/deb/latest/chatgpt_amd64.deb";
-      sha256 = "sha256-msjQcRtGATaNSd7dv1Co/lI1jLYbbZ96XBi0HtRQCtg=";
+      sha256 = "sha256-YP222JXXdviDH/NaeD3gTNv6KA8PPZclhDFfmOV6olY=";
     };
     aarch64-linux = {
       url = "https://persistent.oaistatic.com/codex-app-prod/linux/deb/latest/chatgpt_arm64.deb";
-      sha256 = "sha256-mwz2cAjHRt+AarOn6+lY/+tInZwfbLyXf4IsgxPcqSE=";
+      sha256 = "sha256-9kbAHuvTekkxfvYq7eh3wina7uTxyrnvPrYaHPZClWQ=";
     };
   };
   srcInfo = sources.${stdenv.hostPlatform.system} or (throw "Unsupported system: ${stdenv.hostPlatform.system}");
 in
 stdenv.mkDerivation rec {
   pname = "chatgpt";
-  version = "26.928.21956";
+  version = "26.930.21537";
 
   src = fetchurl {
     inherit (srcInfo) url sha256;
