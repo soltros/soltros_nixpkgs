@@ -22,6 +22,7 @@
         hideout = final.callPackage ./pkgs/hideout { };
         keyguard = _prev.keyguard;
         nixboutique = final.callPackage ./pkgs/nixboutique.nix { };
+        nixpkger = final.callPackage ./pkgs/nixpkger.nix { };
         quick-settings-tray = final.callPackage ./pkgs/quick-settings-tray { };
         supernova-desktop = final.callPackage ./pkgs/supernova-desktop.nix { };
         termsmith = final.callPackage ./pkgs/termsmith { };
@@ -50,6 +51,7 @@
             hideout
             keyguard
             nixboutique
+            nixpkger
             quick-settings-tray
             supernova-desktop
             termsmith
