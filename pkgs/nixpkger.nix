@@ -7,7 +7,7 @@ stdenvNoCC.mkDerivation {
   # A fixed commit allows the update scanner to detect upstream changes.
   src = builtins.fetchGit {
     url = "https://github.com/soltros/nixpkger.git";
-    rev = "ade9e4a739853c13b8ec195e0a8e0302b4412e6b";
+    rev = "4351bc940ffcc9a02547b1ba353bfb343e48443a";
   };
 
   nativeBuildInputs = [ makeWrapper ];
