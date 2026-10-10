@@ -238,6 +238,18 @@ def scan_all_packages(token: Optional[str] = None, repo_root: Optional[Path] = N
         info["type"] = "GitHub Commit"
         results.append(info)
 
+    # Nixpkger: track the pinned main-branch commit.
+    nixpkger_nix = root / "pkgs" / "nixpkger.nix"
+    if nixpkger_nix.is_file():
+        rev = parse_rev(read_file(nixpkger_nix)) or "main"
+        try:
+            info = checker.check_github_commit("soltros", "nixpkger", rev)
+        except Exception as e:
+            info = {"status": "error", "error": str(e), "current": rev, "latest": "?"}
+        info["package"] = "nixpkger"
+        info["type"] = "GitHub Commit"
+        results.append(info)
+
     # 7. Quick Settings Tray
     qst_nix = root / "pkgs" / "quick-settings-tray" / "default.nix"
     if qst_nix.is_file():
