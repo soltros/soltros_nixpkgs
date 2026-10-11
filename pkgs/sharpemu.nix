@@ -35,6 +35,7 @@ buildFHSEnv {
     alsa-lib libpulseaudio vulkan-loader libGL zlib openssl icu
     fontconfig freetype SDL2 xorg.libX11 xorg.libXcursor xorg.libXi
     xorg.libXrandr xorg.libXext xorg.libXrender xorg.libxcb
+    xorg.libICE xorg.libSM
     wayland libxkbcommon
   ];
   runScript = "${launcher}";
