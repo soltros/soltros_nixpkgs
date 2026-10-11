@@ -1,4 +1,4 @@
-{ lib, stdenvNoCC, fetchurl, buildFHSEnv, writeShellScript, alsa-lib, libpulseaudio, vulkan-loader, libGL, zlib, openssl, icu, fontconfig, freetype, SDL2, xorg, wayland, libxkbcommon }:
+{ lib, stdenvNoCC, fetchurl, buildFHSEnv, writeShellScript, alsa-lib, libpulseaudio, vulkan-loader, libGL, zlib, openssl, icu, fontconfig, freetype, SDL2, libx11, libxcursor, libxi, libxrandr, libxext, libxrender, libxcb, libice, libsm, wayland, libxkbcommon }:
 let
   version = "0.0.5-nexus-release.2";
   payload = stdenvNoCC.mkDerivation {
@@ -25,7 +25,7 @@ let
   };
   launcher = writeShellScript "sharpemu-launch" ''
     cd "${payload}/share/sharpemu"
-    export LD_LIBRARY_PATH="${lib.makeLibraryPath [ xorg.libICE xorg.libSM xorg.libX11 xorg.libXext xorg.libxcb ]}''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+    export LD_LIBRARY_PATH="${lib.makeLibraryPath [ libice libsm libx11 libxext libxcb ]}''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
     exec ./SharpEmu "$@"
   '';
 in
@@ -34,9 +34,9 @@ buildFHSEnv {
   inherit version;
   targetPkgs = pkgs: with pkgs; [
     alsa-lib libpulseaudio vulkan-loader libGL zlib openssl icu
-    fontconfig freetype SDL2 xorg.libX11 xorg.libXcursor xorg.libXi
-    xorg.libXrandr xorg.libXext xorg.libXrender xorg.libxcb
-    xorg.libICE xorg.libSM
+    fontconfig freetype SDL2 libx11 libxcursor libxi
+    libxrandr libxext libxrender libxcb
+    libice libsm
     wayland libxkbcommon
   ];
   runScript = "${launcher}";
