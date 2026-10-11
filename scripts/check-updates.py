@@ -287,6 +287,26 @@ def scan_all_packages(token: Optional[str] = None, repo_root: Optional[Path] = N
         info["type"] = "GitHub Commit"
         results.append(info)
 
+    # SharpEmu: follow the latest published release (not unreleased commits).
+    sharpemu_nix = root / "pkgs" / "sharpemu.nix"
+    if sharpemu_nix.is_file():
+        v = parse_version(read_file(sharpemu_nix)) or "unknown"
+        try:
+            rel = fetch_json("https://api.github.com/repos/sharpemu/sharpemu/releases/latest", headers)
+            tag = rel["tag_name"]
+            latest = tag.removeprefix("v")
+            info = {
+                "status": "up_to_date" if latest == v else "update_available",
+                "current": v,
+                "latest": latest,
+                "url": rel["html_url"],
+            }
+        except Exception as e:
+            info = {"status": "error", "error": str(e), "current": v, "latest": "?"}
+        info["package"] = "sharpemu"
+        info["type"] = "GitHub Release"
+        results.append(info)
+
     # Waterfox
     waterfox_nix = root / "pkgs" / "waterfox.nix"
     if waterfox_nix.is_file():
