@@ -25,6 +25,7 @@ let
   };
   launcher = writeShellScript "sharpemu-launch" ''
     cd "${payload}/share/sharpemu"
+    export LD_LIBRARY_PATH="${lib.makeLibraryPath [ xorg.libICE xorg.libSM xorg.libX11 xorg.libXext xorg.libxcb ]}''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
     exec ./SharpEmu "$@"
   '';
 in
