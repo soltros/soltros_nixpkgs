@@ -24,6 +24,7 @@
         nixboutique = final.callPackage ./pkgs/nixboutique.nix { };
         nixpkger = final.callPackage ./pkgs/nixpkger.nix { };
         quick-settings-tray = final.callPackage ./pkgs/quick-settings-tray { };
+        sharpemu = final.callPackage ./pkgs/sharpemu.nix { };
         supernova-desktop = final.callPackage ./pkgs/supernova-desktop.nix { };
         termsmith = final.callPackage ./pkgs/termsmith { };
         vacuumtube = _prev.vacuum-tube;
@@ -53,6 +54,7 @@
             nixboutique
             nixpkger
             quick-settings-tray
+            sharpemu
             supernova-desktop
             termsmith
             vacuumtube
