@@ -6,7 +6,7 @@ let
     inherit version;
     src = fetchurl {
       url = "https://github.com/sharpemu/sharpemu/releases/download/v${version}/sharpemu-${version}-linux-x64.tar.gz";
-      hash = "sha256-0e238c8377119b67047042f1ff2f3e4c94960feaedf49a066467a72756e134f0";
+      hash = "sha256-DiOMg3cRm2cEcELx/y8+TJSWD+rt9JoGZGenJ1bhNPA=";
     };
     sourceRoot = ".";
     dontBuild = true;
