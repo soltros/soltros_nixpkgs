@@ -307,6 +307,25 @@ def scan_all_packages(token: Optional[str] = None, repo_root: Optional[Path] = N
         info["type"] = "GitHub Release"
         results.append(info)
 
+    # Xenia Canary uses short commit IDs as release tags, not semver.
+    xenia_nix = root / "pkgs" / "xenia-canary.nix"
+    if xenia_nix.is_file():
+        v = parse_version(read_file(xenia_nix)) or "unknown"
+        try:
+            rel = fetch_json("https://api.github.com/repos/xenia-canary/xenia-canary/releases/latest", headers)
+            latest = rel["tag_name"]
+            info = {
+                "status": "up_to_date" if latest == v else "update_available",
+                "current": v,
+                "latest": latest,
+                "url": rel["html_url"],
+            }
+        except Exception as e:
+            info = {"status": "error", "error": str(e), "current": v, "latest": "?"}
+        info["package"] = "xenia-canary"
+        info["type"] = "GitHub Release"
+        results.append(info)
+
     # Waterfox
     waterfox_nix = root / "pkgs" / "waterfox.nix"
     if waterfox_nix.is_file():

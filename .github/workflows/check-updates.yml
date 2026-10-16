@@ -27,6 +27,9 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: Test update scanner
+        run: python3 -m unittest discover -s scripts/tests -v
+
       - name: Scan packages for updates
         id: scan
         env:
