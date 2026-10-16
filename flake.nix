@@ -31,6 +31,7 @@
         vpn-manager = final.callPackage ./pkgs/vpn-manager { };
         vpn-manager-deb = final.callPackage ./pkgs/vpn-manager/deb.nix { };
         waterfox = final.callPackage ./pkgs/waterfox.nix { };
+        xenia-canary = final.callPackage ./pkgs/xenia-canary.nix { };
       };
 
       packages = forAllSystems (
@@ -61,6 +62,7 @@
             vpn-manager
             vpn-manager-deb
             waterfox
+            xenia-canary
             ;
           default = pkgs.termsmith;
         }

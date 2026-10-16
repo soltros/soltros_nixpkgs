@@ -11,11 +11,17 @@ permissions:
   contents: read
 
 jobs:
+  scanner:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 -m unittest discover -s scripts/tests -v
+
   source:
     strategy:
       fail-fast: false
       matrix:
-        package: [chatgpt, waterfox]
+        package: [chatgpt, waterfox, xenia-canary]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -31,8 +37,14 @@ jobs:
           - cabinet-desktop
           - chatgpt
           - waterfox
+          - xenia-canary
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@main
       - run: nix build .#${{ matrix.package }} --print-build-logs
+      - name: Check Xenia launcher
+        if: matrix.package == 'xenia-canary'
+        run: |
+          test -x result/bin/xenia-canary
+          grep -q '^Exec=xenia-canary %f$' result/share/applications/xenia-canary.desktop
