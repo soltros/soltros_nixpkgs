@@ -21,7 +21,7 @@ Personal Nix packages with direct flake outputs and a reusable overlay.
 - `vpn-manager` — GTK desktop manager for Tailscale and WireGuard ([guide](pkgs/vpn-manager/README.md))
 - `vpn-manager-deb` — Debian package artifact for VPN Manager
 - `waterfox` — Official Waterfox browser binaries for x86_64 and ARM64 Linux
-- `xenia-canary` — Xenia Canary Xbox 360 emulator, compiled from source for x86_64 Linux
+- `xenia` — Xenia Xbox 360 emulator, compiled from source for x86_64 Linux
 
 `grayjay`, `keyguard`, and `vacuumtube` reuse packages from the pinned nixpkgs input (`vacuumtube` aliases `vacuum-tube`). `default` aliases `termsmith`. Platform support varies by package.
 
@@ -44,7 +44,7 @@ nix run github:soltros/soltros_nixpkgs#keyguard
 nix run github:soltros/soltros_nixpkgs#grayjay
 nix run github:soltros/soltros_nixpkgs#vacuumtube
 nix run github:soltros/soltros_nixpkgs#waterfox
-nix run github:soltros/soltros_nixpkgs#xenia-canary
+nix run github:soltros/soltros_nixpkgs#xenia
 nix run github:soltros/soltros_nixpkgs#flakebuilder -- --state-version 26.05
 ```
 
@@ -140,14 +140,14 @@ nix build .#vacuumtube
 nix build .#vpn-manager
 nix build .#vpn-manager-deb
 nix build .#waterfox
-nix build .#xenia-canary
+nix build .#xenia
 nix flake check
 nix fmt
 ```
 
 ## Check for package updates
 
-Run the scanner locally to check for new upstream releases and commits across packages with pinned upstream sources. Bundled applications are reported separately; nixpkgs aliases are updated through `flake.lock`. Xenia Canary is compared with the latest published release tag, and its version, source revision, and hash must be updated together. Commit-pinned packages such as `cabinet-desktop` and `supernova-desktop` are compared with the latest commit on their tracked upstream branches (`main` for Cabinet and `feature/flutter-desktop` for Supernova). The scheduled GitHub workflow updates or opens a `package-updates` issue when a pinned package falls behind:
+Run the scanner locally to check for new upstream releases and commits across packages with pinned upstream sources. Bundled applications are reported separately; nixpkgs aliases are updated through `flake.lock`. Commit-pinned packages such as `cabinet-desktop`, `supernova-desktop`, and `xenia` are compared with the latest commit on their tracked upstream branches (`main` for Cabinet, `feature/flutter-desktop` for Supernova, and `master` for Xenia). The scheduled GitHub workflow updates or opens a `package-updates` issue when a pinned package falls behind:
 
 ```sh
 # Run via Flake app
@@ -161,17 +161,17 @@ nix run github:soltros/soltros_nixpkgs#check-updates
 
 The companion module and package sources are bundled under `modules/pantheon-studio.nix` and `pkgs/pantheon-studio`, but this flake currently does not export `nixosModules.pantheon-studio` or a `pantheon-studio` package. See [the Studio guide](pkgs/pantheon-studio/README.md) for the source integration details.
 
-## Xenia Canary
+## Xenia
 
-`xenia-canary` builds the pinned Canary release and its submodules from source using Clang, CMake, and Ninja. It installs a native executable and desktop launcher. Linux support is experimental; an AVX-capable x86_64 CPU and a Vulkan-capable GPU/driver are required.
+`xenia` builds the pinned upstream `xenia-project/xenia` commit and its submodules from source using Premake, Clang, CMake, and Ninja. It installs a native executable and desktop launcher. Linux support is experimental; an AVX-capable x86_64 CPU and a Vulkan-capable GPU/driver are required.
 
 ```sh
-nix run github:soltros/soltros_nixpkgs#xenia-canary -- /path/to/game.xex
+nix run github:soltros/soltros_nixpkgs#xenia -- /path/to/game.xex
 ```
 
 Configuration, saves, and caches default to `$XDG_DATA_HOME/Xenia` (or `~/.local/share/Xenia`); game paths are passed through unchanged.
 
-The daily package scanner checks published Canary release tags, and Nix CI fetches the source and builds the package.
+The daily package scanner checks the latest `master` commit on `xenia-project/xenia`, and Nix CI fetches the source and builds the package.
 
 
 ## Supernova Desktop

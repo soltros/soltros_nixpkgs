@@ -21,7 +21,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        package: [chatgpt, waterfox, xenia-canary]
+        package: [chatgpt, waterfox, xenia]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -37,14 +37,14 @@ jobs:
           - cabinet-desktop
           - chatgpt
           - waterfox
-          - xenia-canary
+          - xenia
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@main
       - run: nix build .#${{ matrix.package }} --print-build-logs
       - name: Check Xenia launcher
-        if: matrix.package == 'xenia-canary'
+        if: matrix.package == 'xenia'
         run: |
-          test -x result/bin/xenia-canary
-          grep -q '^Exec=xenia-canary %f$' result/share/applications/xenia-canary.desktop
+          test -x result/bin/xenia
+          grep -q '^Exec=xenia %f$' result/share/applications/xenia.desktop
