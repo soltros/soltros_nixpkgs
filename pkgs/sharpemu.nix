@@ -1,12 +1,12 @@
 { lib, stdenvNoCC, fetchurl, buildFHSEnv, writeShellScript, alsa-lib, libpulseaudio, vulkan-loader, libGL, zlib, openssl, icu, fontconfig, freetype, SDL2, libx11, libxcursor, libxi, libxrandr, libxext, libxrender, libxcb, libice, libsm, wayland, libxkbcommon }:
 let
-  version = "0.0.5-nexus-release.2";
+  version = "0.0.6-mono";
   payload = stdenvNoCC.mkDerivation {
     pname = "sharpemu-files";
     inherit version;
     src = fetchurl {
       url = "https://github.com/sharpemu/sharpemu/releases/download/v${version}/sharpemu-${version}-linux-x64.tar.gz";
-      hash = "sha256-DiOMg3cRm2cEcELx/y8+TJSWD+rt9JoGZGenJ1bhNPA=";
+      hash = "sha256-3H7fqpg7tAxvQCL6osoutMb4Mfiyl/ENLjwTIJkTf1c=";
     };
     sourceRoot = ".";
     dontBuild = true;

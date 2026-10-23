@@ -32,6 +32,8 @@
 , vulkan-loader
 , libGL
 , libusb1
+, openssl
+, tpm2-tss
 , qt6
 , bubblewrap
 }:
@@ -40,19 +42,19 @@ let
   # Use versioned upstream pool URLs so later releases do not invalidate pinned hashes.
   sources = {
     x86_64-linux = {
-      url = "https://persistent.oaistatic.com/codex-app-prod/linux/deb/pool/main/c/chatgpt/chatgpt_26.1013.31256_amd64.deb";
-      sha256 = "sha256-cMzyub94CY57u/3b8e4Zao/dQr63538W3UL6ujZAMyQ=";
+      url = "https://persistent.oaistatic.com/codex-app-prod/linux/deb/pool/main/c/chatgpt/chatgpt_26.1016.61520_amd64.deb";
+      sha256 = "sha256-mt1iKRbF+jhhr9lQga934lSIwQjKnFQ+H2dWCzkNKNQ=";
     };
     aarch64-linux = {
-      url = "https://persistent.oaistatic.com/codex-app-prod/linux/deb/pool/main/c/chatgpt/chatgpt_26.1013.31256_arm64.deb";
-      sha256 = "sha256-FynaC5Vc5fvXq+ToaX8/pYvpVDEByRGMR67UJVm4o5Y=";
+      url = "https://persistent.oaistatic.com/codex-app-prod/linux/deb/pool/main/c/chatgpt/chatgpt_26.1016.61520_arm64.deb";
+      sha256 = "sha256-xUmDSFgfdgcQKsbyBsn4dmjM42yMfbtMAgniXNimCxE=";
     };
   };
   srcInfo = sources.${stdenv.hostPlatform.system} or (throw "Unsupported system: ${stdenv.hostPlatform.system}");
 in
 stdenv.mkDerivation rec {
   pname = "chatgpt";
-  version = "26.1013.31256";
+  version = "26.1016.61520";
 
   src = fetchurl {
     inherit (srcInfo) url sha256;
@@ -93,6 +95,8 @@ stdenv.mkDerivation rec {
     vulkan-loader
     libGL
     libusb1
+    openssl
+    tpm2-tss
     qt6.qtbase
   ];
 
@@ -110,8 +114,9 @@ stdenv.mkDerivation rec {
     cp -r usr/lib/chatgpt $out/lib
     cp -r usr/share/* $out/share/
 
-    # Remove musl node prebuilds and unused Qt5 shim since we use glibc and Qt6
+    # Remove non-glibc node prebuilds and unused Qt5 shim.
     find $out/lib -name "*musl*" -exec rm -rf {} +
+    find $out/lib -path "*/prebuilds/android-*" -prune -exec rm -rf {} +
     rm -f $out/lib/libqt5_shim.so
 
     # Ensure desktop file points to the right binary
