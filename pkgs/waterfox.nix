@@ -18,16 +18,16 @@
 }:
 
 let
-  version = "6.7.6";
+  version = "6.7.7";
 
   sources = {
     x86_64-linux = {
       url = "https://cdn.waterfox.com/waterfox/releases/${version}/Linux_x86_64/waterfox-${version}.tar.bz2";
-      hash = "sha256-kxY7aDUaWKTWZFchm5Xvhv5wZqZSTYG7bKvXR956kFY=";
+      hash = "sha256-8KHGIAEU2lMJi78twSc60dnuvg2s5MLtM7eFsZlzLWA=";
     };
     aarch64-linux = {
       url = "https://cdn.waterfox.com/waterfox/releases/${version}/Linux_aarch64/waterfox-${version}.tar.bz2";
-      hash = "sha256-w0DhRfnU6AztCbn1suqr8It2mIfUR7FuBYKAwuij5so=";
+      hash = "sha256-Ugq+x4l0DCZNCv5eBlQ6Y0RYzpa8U1w3dUJDLZ4G67Q=";
     };
   };
 
