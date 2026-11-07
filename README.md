@@ -4,6 +4,7 @@ Personal Nix packages with direct flake outputs and a reusable overlay.
 
 ## Packages
 
+- `brave` — Official Brave stable browser binaries for x86_64 and ARM64 Linux
 - `cabinet-desktop` — Native Rust desktop client for self-hosted Cabinet servers
 - `chatgpt` — ChatGPT desktop app for Linux
 - `flakebuilder` — Build a single NixOS flake from selectable configuration bits
@@ -36,6 +37,7 @@ These sources are included in the repository but are not currently exported by t
 ## Run a package
 
 ```sh
+nix run github:soltros/soltros_nixpkgs#brave
 nix run github:soltros/soltros_nixpkgs#cabinet-desktop
 nix run github:soltros/soltros_nixpkgs#nixboutique
 nix run github:soltros/soltros_nixpkgs#termsmith
@@ -196,3 +198,18 @@ environment.systemPackages = with pkgs; [
 ```
 
 The package builds the Flutter client from source and exposes `supernova-desktop` as its main executable.
+
+## Brave
+
+Brave is packaged independently of nixpkgs using pinned official stable Debian
+binaries. The overlay exposes `pkgs.brave`; the direct flake output is `#brave`.
+The wrapper supports Wayland, VA-API and optional Vulkan, and installs upstream
+desktop entries and icons. Chromium's user namespace sandbox remains enabled.
+
+The daily scanner checks the latest stable GitHub release and requires both Linux
+architecture assets. To update, change the version and both hashes in
+`pkgs/brave/default.nix`. CI fetches and builds Brave on x86_64 Linux;
+ARM64 execution needs separate validation.
+
+Packaging is adapted from NixOS/nixpkgs commit
+`f9b44bb14af83919dd3e79a01a97330d550ab0c3` (MIT).

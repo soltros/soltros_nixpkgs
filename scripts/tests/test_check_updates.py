@@ -44,5 +44,48 @@ class XeniaCommitTests(unittest.TestCase):
         self.assertEqual(result["current"], "95a5c3e")
 
 
+
+class BraveStableTests(unittest.TestCase):
+    def scan(self, version="1.99.55", **changes):
+        release = {
+            "tag_name": f"v{version}",
+            "html_url": f"https://github.com/brave/brave-browser/releases/tag/v{version}",
+            "assets": [{"name": f"brave-browser_{version}_{arch}.deb"}
+                       for arch in ("amd64", "arm64")],
+        }
+        release.update(changes)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "pkgs/brave").mkdir(parents=True)
+            (root / "pkgs/brave/default.nix").write_text('version = "1.99.55";')
+            with patch.object(scanner, "fetch_json", return_value=release) as fetch:
+                results = scanner.scan_all_packages(repo_root=root)
+            fetch.assert_called_once_with(
+                "https://api.github.com/repos/brave/brave-browser/releases/latest",
+                scanner.get_headers(),
+            )
+            self.assertEqual(len(results), 1)
+            self.assertEqual(results[0]["package"], "brave")
+            return results[0]
+
+    def test_current_stable(self):
+        self.assertEqual(self.scan()["status"], "up_to_date")
+
+    def test_new_stable(self):
+        result = self.scan("1.99.56")
+        self.assertEqual(result["status"], "update_available")
+        self.assertEqual(result["latest"], "1.99.56")
+        self.assertIn("brave", scanner.format_markdown_report([result]))
+
+    def test_prerelease_is_rejected(self):
+        self.assertEqual(self.scan(prerelease=True)["status"], "error")
+
+    def test_missing_architecture_is_reported(self):
+        self.assertEqual(self.scan(assets=[])["status"], "error")
+
+    def test_beta_tag_is_rejected(self):
+        self.assertEqual(self.scan("1.100.1-beta")["status"], "error")
+
+
 if __name__ == "__main__":
     unittest.main()

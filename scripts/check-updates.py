@@ -87,6 +87,27 @@ class PackageChecker:
             "url": f"https://github.com/{owner}/{repo}/commit/{latest_sha}",
         }
 
+    def check_brave(self, current_version: str) -> Dict[str, Any]:
+        # /latest excludes beta/nightly prereleases; the tags endpoint does not.
+        release = fetch_json(
+            "https://api.github.com/repos/brave/brave-browser/releases/latest",
+            self.headers,
+        )
+        tag = release["tag_name"]
+        latest = tag.removeprefix("v")
+        if release.get("draft") or release.get("prerelease") or not re.fullmatch(r"1\.\d+\.\d+", latest):
+            raise ValueError("Expected a published Brave stable release")
+        assets = {asset["name"] for asset in release.get("assets", [])}
+        required = {f"brave-browser_{latest}_{arch}.deb" for arch in ("amd64", "arm64")}
+        if not required.issubset(assets):
+            raise ValueError("Brave stable release is missing Linux Debian assets")
+        return {
+            "status": "up_to_date" if latest == current_version else "update_available",
+            "current": current_version,
+            "latest": latest,
+            "url": release["html_url"],
+        }
+
     def check_waterfox(self, current_version: str) -> Dict[str, Any]:
         url = "https://api.github.com/repos/WaterfoxCo/Waterfox/releases/latest"
         try:
@@ -165,6 +186,18 @@ def scan_all_packages(token: Optional[str] = None, repo_root: Optional[Path] = N
     headers = get_headers(token)
     checker = PackageChecker(headers)
     results = []
+
+    # Brave: track published stable builds, never beta/nightly tags.
+    brave_nix = root / "pkgs" / "brave" / "default.nix"
+    if brave_nix.is_file():
+        v = parse_version(read_file(brave_nix)) or "unknown"
+        try:
+            info = checker.check_brave(v)
+        except Exception as e:
+            info = {"status": "error", "error": str(e), "current": v, "latest": "?"}
+        info["package"] = "brave"
+        info["type"] = "GitHub Stable Release"
+        results.append(info)
 
     # 1. Addwater
     addwater_nix = root / "pkgs" / "addwater" / "default.nix"

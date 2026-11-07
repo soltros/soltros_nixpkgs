@@ -21,7 +21,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        package: [chatgpt, waterfox, xenia]
+        package: [brave, chatgpt, waterfox, xenia]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -33,6 +33,7 @@ jobs:
       fail-fast: false
       matrix:
         package:
+          - brave
           - supernova-desktop
           - cabinet-desktop
           - chatgpt

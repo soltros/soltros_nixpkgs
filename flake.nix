@@ -14,6 +14,7 @@
     in
     {
       overlays.default = final: _prev: {
+        brave = final.callPackage ./pkgs/brave { };
         cabinet-desktop = final.callPackage ./pkgs/cabinet-desktop { };
         chatgpt = final.callPackage ./pkgs/chatgpt.nix { };
         flakebuilder = final.callPackage ./pkgs/flakebuilder.nix { };
@@ -46,6 +47,7 @@
         in
         {
           inherit (pkgs)
+            brave
             cabinet-desktop
             chatgpt
             flakebuilder
