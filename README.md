@@ -14,6 +14,7 @@ Personal Nix packages with direct flake outputs and a reusable overlay.
 - `nixboutique` — Modern GTK4 browser and manager for NixOS applications
 - `nixpkger` — CLI manager for NixOS package modules and flakes
 - `quick-settings-tray` — AppIndicator and KStatusNotifierItem icons in a contained System Tray section of Quick Settings
+- `recomplauncher` — Desktop launcher for discovering and managing PC recomps (x86_64 Linux)
 - `sharpemu` — Experimental PlayStation 5 emulator (x86_64 Linux)
 - `supernova-desktop` — Native Flutter desktop client for self-hosted Supernova music servers
 - `termsmith` — Pantheon-native launcher for reusable Alacritty profiles
@@ -45,6 +46,7 @@ nix run github:soltros/soltros_nixpkgs#grayjay
 nix run github:soltros/soltros_nixpkgs#vacuumtube
 nix run github:soltros/soltros_nixpkgs#waterfox
 nix run github:soltros/soltros_nixpkgs#xenia
+nix run github:soltros/soltros_nixpkgs#recomplauncher
 nix run github:soltros/soltros_nixpkgs#flakebuilder -- --state-version 26.05
 ```
 
@@ -133,6 +135,7 @@ nix build .#keyguard
 nix build .#nixboutique
 nix build .#nixpkger
 nix build .#quick-settings-tray
+nix build .#recomplauncher
 nix build .#sharpemu
 nix build .#supernova-desktop
 nix build .#termsmith
