@@ -262,6 +262,32 @@ def scan_all_packages(token: Optional[str] = None, repo_root: Optional[Path] = N
         info["type"] = "GitHub Commit"
         results.append(info)
 
+    # RecompLauncher: track the newest release, including prereleases.
+    recomplauncher_nix = root / "pkgs" / "recomplauncher.nix"
+    if recomplauncher_nix.is_file():
+        v = parse_version(read_file(recomplauncher_nix)) or "unknown"
+        try:
+            releases = fetch_json(
+                "https://api.github.com/repos/elripalda/RecompLauncher/releases?per_page=1",
+                headers,
+            )
+            release = next((item for item in releases if not item.get("draft")), None)
+            if not release:
+                raise ValueError("No published releases found")
+            tag = release["tag_name"]
+            latest = tag.removeprefix("v")
+            info = {
+                "status": "up_to_date" if latest == v else "update_available",
+                "current": v,
+                "latest": latest,
+                "url": release.get("html_url", "https://github.com/elripalda/RecompLauncher/releases"),
+            }
+        except Exception as e:
+            info = {"status": "error", "error": str(e), "current": v, "latest": "?"}
+        info["package"] = "recomplauncher"
+        info["type"] = "GitHub Release"
+        results.append(info)
+
 
     # Cabinet Desktop
     cabinet_nix = root / "pkgs" / "cabinet-desktop" / "default.nix"
