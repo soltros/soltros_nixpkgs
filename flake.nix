@@ -22,6 +22,7 @@
         grayjay = _prev.grayjay;
         hideout = final.callPackage ./pkgs/hideout { };
         keyguard = _prev.keyguard;
+        lichii = final.callPackage ./pkgs/lichii.nix { };
         nixboutique = final.callPackage ./pkgs/nixboutique.nix { };
         nixpkger = final.callPackage ./pkgs/nixpkger.nix { };
         quick-settings-tray = final.callPackage ./pkgs/quick-settings-tray { };
@@ -55,6 +56,7 @@
             grayjay
             hideout
             keyguard
+            lichii
             nixboutique
             nixpkger
             quick-settings-tray

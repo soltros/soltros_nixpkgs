@@ -108,6 +108,27 @@ class PackageChecker:
             "url": release["html_url"],
         }
 
+    def check_lichii(self, current_version: str) -> Dict[str, Any]:
+        release = fetch_json(
+            "https://api.github.com/repos/zortos293/Lichii/releases/latest",
+            self.headers,
+        )
+        tag = release["tag_name"]
+        if release.get("draft") or release.get("prerelease") or not re.fullmatch(r"build-\d+", tag):
+            raise ValueError("Expected a published Lichii build release")
+        assets = {asset["name"] for asset in release.get("assets", [])}
+        required = {f"lichii-linux-{arch}-pgo.AppImage" for arch in ("x86_64", "aarch64")}
+        if not required.issubset(assets):
+            raise ValueError("Lichii release is missing PGO AppImages")
+        latest = tag.removeprefix("build-")
+        return {
+            "status": "up_to_date" if latest == current_version else "update_available",
+            "current": current_version,
+            "latest": latest,
+            "latest_tag": tag,
+            "url": release["html_url"],
+        }
+
     def check_waterfox(self, current_version: str) -> Dict[str, Any]:
         url = "https://api.github.com/repos/WaterfoxCo/Waterfox/releases/latest"
         try:
@@ -197,6 +218,18 @@ def scan_all_packages(token: Optional[str] = None, repo_root: Optional[Path] = N
             info = {"status": "error", "error": str(e), "current": v, "latest": "?"}
         info["package"] = "brave"
         info["type"] = "GitHub Stable Release"
+        results.append(info)
+
+    # Lichii: track published builds with PGO AppImages for both architectures.
+    lichii_nix = root / "pkgs" / "lichii.nix"
+    if lichii_nix.is_file():
+        v = parse_version(read_file(lichii_nix)) or "unknown"
+        try:
+            info = checker.check_lichii(v)
+        except Exception as e:
+            info = {"status": "error", "error": str(e), "current": v, "latest": "?"}
+        info["package"] = "lichii"
+        info["type"] = "GitHub Release"
         results.append(info)
 
     # 1. Addwater

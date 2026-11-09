@@ -12,6 +12,7 @@ Personal Nix packages with direct flake outputs and a reusable overlay.
 - `grayjay` — Cross-platform media application for streaming and downloading media
 - `hideout` — Minimal desktop application for GnuPG file encryption and decryption
 - `keyguard` — Password manager for Bitwarden and KeePass vaults
+- `lichii` — Lichii emulator, using upstream PGO AppImages for x86_64 and ARM64 Linux
 - `nixboutique` — Modern GTK4 browser and manager for NixOS applications
 - `nixpkger` — CLI manager for NixOS package modules and flakes
 - `quick-settings-tray` — AppIndicator and KStatusNotifierItem icons in a contained System Tray section of Quick Settings
@@ -44,6 +45,7 @@ nix run github:soltros/soltros_nixpkgs#termsmith
 nix run github:soltros/soltros_nixpkgs#chatgpt
 nix run github:soltros/soltros_nixpkgs#hideout
 nix run github:soltros/soltros_nixpkgs#keyguard
+nix run github:soltros/soltros_nixpkgs#lichii
 nix run github:soltros/soltros_nixpkgs#grayjay
 nix run github:soltros/soltros_nixpkgs#vacuumtube
 nix run github:soltros/soltros_nixpkgs#waterfox
@@ -134,6 +136,7 @@ nix build .#flakebuilder-gui
 nix build .#grayjay
 nix build .#hideout
 nix build .#keyguard
+nix build .#lichii
 nix build .#nixboutique
 nix build .#nixpkger
 nix build .#quick-settings-tray
@@ -213,3 +216,14 @@ ARM64 execution needs separate validation.
 
 Packaging is adapted from NixOS/nixpkgs commit
 `f9b44bb14af83919dd3e79a01a97330d550ab0c3` (MIT).
+
+## Lichii
+
+`lichii` wraps the official PGO AppImage for each Linux architecture and installs
+its desktop entry and icon. Run `nix run github:soltros/soltros_nixpkgs#lichii`,
+or add `pkgs.lichii` through the overlay. Firmware, keys, and games are not bundled.
+
+The daily scanner tracks published `build-N` releases and checks that both PGO
+AppImages exist. To update, change `version` and both SHA-256 hashes in
+`pkgs/lichii.nix`. CI fetches and builds the x86_64 package; ARM64 execution
+requires separate validation.

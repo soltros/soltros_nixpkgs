@@ -87,5 +87,51 @@ class BraveStableTests(unittest.TestCase):
         self.assertEqual(self.scan("1.100.1-beta")["status"], "error")
 
 
+class LichiiReleaseTests(unittest.TestCase):
+    def scan(self, tag="build-117", error=None, **changes):
+        release = {
+            "tag_name": tag,
+            "html_url": f"https://github.com/zortos293/Lichii/releases/tag/{tag}",
+            "assets": [{"name": f"lichii-linux-{arch}-pgo.AppImage"}
+                       for arch in ("x86_64", "aarch64")],
+        }
+        release.update(changes)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "pkgs").mkdir()
+            (root / "pkgs/lichii.nix").write_text('version = "117";')
+            with patch.object(scanner, "fetch_json", return_value=release, side_effect=error) as fetch:
+                results = scanner.scan_all_packages(repo_root=root)
+            fetch.assert_called_once_with(
+                "https://api.github.com/repos/zortos293/Lichii/releases/latest",
+                scanner.get_headers(),
+            )
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0]["package"], "lichii")
+        return results[0]
+
+    def test_current_build(self):
+        self.assertEqual(self.scan()["status"], "up_to_date")
+
+    def test_new_build(self):
+        result = self.scan("build-118")
+        self.assertEqual(result["status"], "update_available")
+        self.assertEqual(result["latest"], "118")
+        self.assertIn("lichii", scanner.format_markdown_report([result]))
+
+    def test_incomplete_release(self):
+        self.assertEqual(self.scan(assets=[{"name": "lichii-linux-x86_64-pgo.AppImage"}])["status"], "error")
+
+    def test_invalid_release(self):
+        for changes in ({"tag": "nightly"}, {"prerelease": True}, {"draft": True}):
+            with self.subTest(changes=changes):
+                self.assertEqual(self.scan(**changes)["status"], "error")
+
+    def test_api_error(self):
+        result = self.scan(error=OSError("unavailable"))
+        self.assertEqual(result["status"], "error")
+        self.assertEqual(result["current"], "117")
+
+
 if __name__ == "__main__":
     unittest.main()
