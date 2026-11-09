@@ -2,15 +2,15 @@
 
 let
   pname = "lichii";
-  version = "117";
+  version = "125";
   sources = {
     x86_64-linux = {
       arch = "x86_64";
-      hash = "sha256-ou2nSRBTlaxpEMkF8PPFZFKLe/0TLrr3YWlj/ijG3Zg=";
+      hash = "sha256-3xVDMoxEiwfMmHHnDO5EkfUXS0TJg6PjLWIjZA4/lzw=";
     };
     aarch64-linux = {
       arch = "aarch64";
-      hash = "sha256-gGth9H684dBB0BhNdsZy8kxaLFnKzjIai/qVhalzDAE=";
+      hash = "sha256-8MUUs0wsTuM87MATL0yuJ5m5JVBdIjUPXRhLaQKgdu8=";
     };
   };
   source = sources.${stdenv.hostPlatform.system}
