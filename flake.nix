@@ -16,6 +16,7 @@
       overlays.default = final: _prev: {
         brave = final.callPackage ./pkgs/brave { };
         cabinet-desktop = final.callPackage ./pkgs/cabinet-desktop { };
+        codex = final.callPackage ./pkgs/codex.nix { };
         chatgpt = final.callPackage ./pkgs/chatgpt.nix { };
         flakebuilder = final.callPackage ./pkgs/flakebuilder.nix { };
         flakebuilder-gui = final.callPackage ./pkgs/flakebuilder-gui.nix { };
@@ -51,6 +52,7 @@
             brave
             cabinet-desktop
             chatgpt
+            codex
             flakebuilder
             flakebuilder-gui
             grayjay

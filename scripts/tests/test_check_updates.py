@@ -133,5 +133,23 @@ class LichiiReleaseTests(unittest.TestCase):
         self.assertEqual(result["current"], "117")
 
 
+class CodexReleaseTests(unittest.TestCase):
+    def test_stable_bundles_and_version(self):
+        release = {"tag_name": "rust-v0.167.0", "html_url": "https://github.com/openai/codex/releases/tag/rust-v0.167.0",
+                   "assets": [{"name": f"codex-package-{arch}-unknown-linux-musl.tar.gz"} for arch in ("x86_64", "aarch64")]}
+        checker = scanner.PackageChecker({})
+        with patch.object(scanner, "fetch_json", return_value=release):
+            self.assertEqual(checker.check_codex("0.167.0")["status"], "up_to_date")
+            self.assertEqual(checker.check_codex("0.166.0")["status"], "update_available")
+            release["assets"].pop()
+            with self.assertRaises(ValueError):
+                checker.check_codex("0.167.0")
+
+    def test_reject_prerelease(self):
+        with patch.object(scanner, "fetch_json", return_value={"tag_name": "rust-v0.168.0-alpha.1", "prerelease": True}):
+            with self.assertRaises(ValueError):
+                scanner.PackageChecker({}).check_codex("0.167.0")
+
+
 if __name__ == "__main__":
     unittest.main()

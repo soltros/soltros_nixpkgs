@@ -87,6 +87,20 @@ class PackageChecker:
             "url": f"https://github.com/{owner}/{repo}/commit/{latest_sha}",
         }
 
+    def check_codex(self, current_version: str) -> Dict[str, Any]:
+        release = fetch_json("https://api.github.com/repos/openai/codex/releases/latest", self.headers)
+        tag = release["tag_name"]
+        if release.get("draft") or release.get("prerelease") or not re.fullmatch(r"rust-v\d+\.\d+\.\d+", tag):
+            raise ValueError("Expected a published stable Codex Rust release")
+        required = {f"codex-package-{arch}-unknown-linux-musl.tar.gz" for arch in ("x86_64", "aarch64")}
+        if not required.issubset({asset["name"] for asset in release.get("assets", [])}):
+            raise ValueError("Codex release is missing Linux binary bundles")
+        latest = tag.removeprefix("rust-v")
+        return {
+            "status": "up_to_date" if latest == current_version else "update_available",
+            "current": current_version, "latest": latest, "url": release["html_url"],
+        }
+
     def check_brave(self, current_version: str) -> Dict[str, Any]:
         # /latest excludes beta/nightly prereleases; the tags endpoint does not.
         release = fetch_json(
@@ -207,6 +221,17 @@ def scan_all_packages(token: Optional[str] = None, repo_root: Optional[Path] = N
     headers = get_headers(token)
     checker = PackageChecker(headers)
     results = []
+
+    codex_nix = root / "pkgs" / "codex.nix"
+    if codex_nix.is_file():
+        v = parse_version(read_file(codex_nix)) or "unknown"
+        try:
+            info = checker.check_codex(v)
+        except Exception as e:
+            info = {"status": "error", "error": str(e), "current": v, "latest": "?"}
+        info["package"] = "codex"
+        info["type"] = "GitHub Stable Release"
+        results.append(info)
 
     # Brave: track published stable builds, never beta/nightly tags.
     brave_nix = root / "pkgs" / "brave" / "default.nix"
