@@ -1,9 +1,9 @@
 { lib, stdenv, fetchurl, autoPatchelfHook, alsa-lib }:
 let
-  version = "0.167.0";
+  version = "0.167.1";
   targets = {
-    x86_64-linux = { target = "x86_64-unknown-linux-musl"; hash = "sha256-O7916D3mtYrtKPLPbjOtQj7DH9RwChRXuUvlV+pafG4="; };
-    aarch64-linux = { target = "aarch64-unknown-linux-musl"; hash = "sha256-DeJh7PHn8wKKeVLwP8ogk/dJJ304WQt4uzL4VndWu7c="; };
+    x86_64-linux = { target = "x86_64-unknown-linux-musl"; hash = "sha256-qUXfPfg+hJ3Xt0eH4n+KRZwZRrDjr+Pcju+KjRhF/U8="; };
+    aarch64-linux = { target = "aarch64-unknown-linux-musl"; hash = "sha256-7z4UQ6d5XVlvFgGlM9ciWhAwSI1gyWWvHwYQq5WIkDE="; };
   };
   platform = targets.${stdenv.hostPlatform.system};
 in
