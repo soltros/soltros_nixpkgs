@@ -42,19 +42,19 @@ let
   # Use versioned upstream pool URLs so later releases do not invalidate pinned hashes.
   sources = {
     x86_64-linux = {
-      url = "https://persistent.oaistatic.com/codex-app-prod/linux/deb/pool/main/c/chatgpt/chatgpt_26.1103.60933_amd64.deb";
-      sha256 = "sha256-B0bpuldRgvXb4yYXuCpkXrk61XyliOWpNYaVprZa7nE=";
+      url = "https://persistent.oaistatic.com/codex-app-prod/linux/deb/pool/main/c/chatgpt/chatgpt_26.1106.51428_amd64.deb";
+      sha256 = "sha256-g1anghkwsTW3QTR/rMvEPhaStEJMPqtxCpr1bAvrsTU=";
     };
     aarch64-linux = {
-      url = "https://persistent.oaistatic.com/codex-app-prod/linux/deb/pool/main/c/chatgpt/chatgpt_26.1103.60933_arm64.deb";
-      sha256 = "sha256-bbGahFWR1QnpuDywqOC0oi3uJ0SNIRwdH6ik+5LtzF0=";
+      url = "https://persistent.oaistatic.com/codex-app-prod/linux/deb/pool/main/c/chatgpt/chatgpt_26.1106.51428_arm64.deb";
+      sha256 = "sha256-zkmsmh78G1MmUEsBaVcLjQlz9LGEYfvMBZe7/lMQqbs=";
     };
   };
   srcInfo = sources.${stdenv.hostPlatform.system} or (throw "Unsupported system: ${stdenv.hostPlatform.system}");
 in
 stdenv.mkDerivation rec {
   pname = "chatgpt";
-  version = "26.1103.60933";
+  version = "26.1106.51428";
 
   src = fetchurl {
     inherit (srcInfo) url sha256;
