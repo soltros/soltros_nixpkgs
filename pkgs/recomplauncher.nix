@@ -23,11 +23,11 @@
 
 let
   pname = "recomplauncher";
-  version = "0.90.0-beta.27";
+  version = "0.90.0-beta.32";
 
   src = fetchurl {
     url = "https://github.com/elripalda/RecompLauncher/releases/download/v${version}/RecompLauncher_${version}_amd64.AppImage";
-    hash = "sha256-sf461daKP/IGAAiXXNH4ZqsqPb3VpaPFZDnMpxPPdMI=";
+    hash = "sha256-ehlfRAowEaKHbyxhMquQFhgoPg8nC9KDtv3yZE9L7J0=";
   };
 
   appimageContents = appimageTools.extract { inherit pname version src; };
