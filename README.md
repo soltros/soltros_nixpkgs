@@ -1,3 +1,10 @@
+> **Maintenance ended: moving to Ubuntu.**
+>
+> Packages and updates now live in [Soltros Ubuntu](https://github.com/soltros/ubuntu_packages).
+> This Nix repository is retained for existing users and historical reference.
+> Its build, test, and scheduled update workflows have been retired; no new Nix package updates are planned.
+> The Ubuntu repository is being bootstrapped; consult its README for build and signing status before switching.
+
 # soltros_nixpkgs
 
 Personal Nix packages with direct flake outputs and a reusable overlay.
